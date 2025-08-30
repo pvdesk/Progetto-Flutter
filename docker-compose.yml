@@ -1,0 +1,34 @@
+version: "3.9"
+name: progetto-flutter
+
+services:
+  # Ambiente Flutter/Dart per CLI, test, analyze e Flutter Web
+  flutter:
+    image: ghcr.io/cirruslabs/flutter:3.24.0
+    container_name: flutter-dev
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace              # monta tutta la cartella del progetto
+    ports:
+      - "8080:8080"                # Flutter Web (run -d chrome)
+      - "9090:9090"                # DevTools (opzionale)
+    environment:
+      - TZ=Europe/Rome
+    command: bash -lc "flutter --version && sleep infinity"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Backend PHP + Apache (OPZIONALE)
+  php:
+    image: php:8.2-apache
+    container_name: php-backend
+    ports:
+      - "8081:80"                  # http://localhost:8081
+    volumes:
+      - ./backend-php:/var/www/html
+    environment:
+      - TZ=Europe/Rome
+    restart: unless-stopped
+
+  
