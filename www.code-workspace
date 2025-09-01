@@ -1,14 +1,9 @@
 {
 	"folders": [
-		{
-			"path": ".."
-		},
+		
 		{
 			"path": "."
 		},
-		{
-			"path": "../Progetto PHP"
-		}
 	],
 	"settings": {}
 }

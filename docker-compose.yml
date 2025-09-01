@@ -1,34 +1,113 @@
-version: "3.9"
+#version: "3.9"
 name: progetto-flutter
 
 services:
-  # Ambiente Flutter/Dart per CLI, test, analyze e Flutter Web
+  # --- FLUTTER / DART (CLI + Web) ---
   flutter:
-    image: ghcr.io/cirruslabs/flutter:3.24.0
+    image: ghcr.io/cirruslabs/flutter:3.24.0   # Flutter 3.24 (stabile)
     container_name: flutter-dev
     working_dir: /workspace
     volumes:
-      - ./:/workspace              # monta tutta la cartella del progetto
+      - ./:/workspace          # monta tutto il progetto
     ports:
-      - "8080:8080"                # Flutter Web (run -d chrome)
-      - "9090:9090"                # DevTools (opzionale)
+      - "${WEB_PORT:-8080}:8080"         # Flutter Web
+      - "${DEVTOOLS_PORT:-9090}:9090"    # DevTools (opzionale)
     environment:
-      - TZ=Europe/Rome
+      - TZ=${TZ:-Europe/Rome}
     command: bash -lc "flutter --version && sleep infinity"
     stdin_open: true
     tty: true
     restart: unless-stopped
 
-  # Backend PHP + Apache (OPZIONALE)
+  # --- BACKEND PHP + APACHE ---
   php:
-    image: php:8.2-apache
+    build:
+      context: .
+      dockerfile: Dockerfile.php          # vedi più sotto
+    image: progetto-flutter-php:8.2
     container_name: php-backend
     ports:
-      - "8081:80"                  # http://localhost:8081
+      - "${PHP_PORT:-8084}:80"            # http://localhost:8084
     volumes:
-      - ./backend-php:/var/www/html
+      - ./backend-php:/var/www/html       # codice PHP
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
     environment:
-      - TZ=Europe/Rome
+      - TZ=${TZ:-Europe/Rome}
+      # Variabili utili per la tua app PHP
+      - DB_HOST=db
+      - DB_NAME=${MYSQL_DATABASE:-appdb}
+      - DB_USER=${MYSQL_USER:-app}
+      - DB_PASS=${MYSQL_PASSWORD:-changemeApp!}
+    depends_on:
+      - db
     restart: unless-stopped
 
-  
+  # --- MySQL (OPZIONALE) ---
+  db:
+    image: mysql:8.0.39            # 8.0.x stabile (compatibile con pdo_mysql)
+    container_name: mysql-db
+    ports:
+      - "${MYSQL_HOST_PORT:-3309}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-appdb}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set in .env}
+      TZ: ${TZ:-Europe/Rome}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # opzionale: file .sql iniziali
+    # - ./mysql-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  # --- phpMyAdmin (OPZIONALE) ---
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    container_name: pma
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ:-Europe/Rome}
+    ports:
+      - "${PMA_PORT:-8083}:80"           # http://localhost:8083
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # --- MongoDB (OPZIONALE) ---
+  mongo:
+    image: mongo:7.0                   # stabile e diffusa
+    container_name: mongo-db
+    ports:
+      - "${MONGO_HOST_PORT:-27018}:27017"
+    volumes:
+      - mongo_data:/data/db
+    # Se vuoi l'auth, sblocca le due env e crea utenti al primo avvio
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+    #   - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    restart: unless-stopped
+
+  # --- Mongo Express (OPZIONALE) ---
+  mongo-express:
+    image: mongo-express:1.0.2-20
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+      # Se abiliti l'auth su mongo, usa invece:
+      # - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      # - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - TZ=${TZ:-Europe/Rome}
+    ports:
+      - "${MONGO_EXPRESS_PORT:-8085}:8081"     # http://localhost:8085
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  mongo_data:
