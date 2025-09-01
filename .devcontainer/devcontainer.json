@@ -1,5 +1,5 @@
 {
-    "name": "Progetto Flutter",
+    "name": "Progetto-Flutter",
     "dockerComposeFile": "../docker-compose.yml",
     "service": "flutter",
     "runServices": [

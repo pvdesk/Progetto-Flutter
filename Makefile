@@ -1,4 +1,4 @@
-# ====== Makefile (Progetto Flutter) ======
+# ====== Makefile (Progetto-Flutter) ======
 COMPOSE = docker compose
 
 .PHONY: up flutter php db mongo ps logs sh-flutter sh-php run-web build-web down downv help
