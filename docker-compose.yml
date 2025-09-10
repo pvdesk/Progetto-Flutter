@@ -19,6 +19,22 @@ services:
     tty: true
     restart: unless-stopped
 
+  # --- BACKEND LARAVEL (PHP + BUILT-IN SERVER) ---
+  laravel-backend:
+    image: composer:latest
+    container_name: laravel-backend
+    working_dir: /var/www/html
+    volumes:
+      - ./backend-laravel:/var/www/html
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    ports:
+    - "8000:8000"
+    depends_on:
+    - db
+    - mongo
+    environment:
+    - COMPOSER_ALLOW_SUPERUSER=1
+
   # --- BACKEND PHP + APACHE ---
   php:
     build:
@@ -45,7 +61,7 @@ services:
   # --- MySQL (OPZIONALE) ---
   db:
     image: mysql:8.0.39            # 8.0.x stabile (compatibile con pdo_mysql)
-    container_name: mysql-db
+    container_name: db
     ports:
       - "${MYSQL_HOST_PORT:-3309}:3306"
     environment:
@@ -77,33 +93,29 @@ services:
 
   # --- MongoDB (OPZIONALE) ---
   mongo:
-    image: mongo:7.0                   # stabile e diffusa
+    image: mongo:7.0
     container_name: mongo-db
     ports:
       - "${MONGO_HOST_PORT:-27018}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongo_data:/data/db
-    # Se vuoi l'auth, sblocca le due env e crea utenti al primo avvio
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-    #   - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     restart: unless-stopped
 
-  # --- Mongo Express (OPZIONALE) ---
   mongo-express:
     image: mongo-express:1.0.2-20
     container_name: mongo-express
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=admin
-      # Se abiliti l'auth su mongo, usa invece:
-      # - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      # - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - TZ=${TZ:-Europe/Rome}
     ports:
-      - "${MONGO_EXPRESS_PORT:-8085}:8081"     # http://localhost:8085
+      - "${MONGO_EXPRESS_PORT:-8085}:8081"
     depends_on:
       - mongo
     restart: unless-stopped
