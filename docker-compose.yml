@@ -25,7 +25,7 @@ services:
     container_name: laravel-backend
     working_dir: /var/www/html
     volumes:
-      - ./backend-laravel:/var/www/html
+      - ./backend_app:/var/www/html
     command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
     ports:
     - "8000:8000"
