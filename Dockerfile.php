@@ -1,5 +1,8 @@
 FROM php:8.2-apache
 
+# Aggiorna i pacchetti di sistema per ridurre vulnerabilità
+RUN apt-get update && apt-get upgrade -y && apt-get clean
+
 # Abilita mod_rewrite (utile per framework/router)
 RUN a2enmod rewrite
 

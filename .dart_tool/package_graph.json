@@ -7,7 +7,8 @@
       "name": "progetto_flutter",
       "version": "0.0.0",
       "dependencies": [
-        "flutter"
+        "flutter",
+        "vector_math"
       ],
       "devDependencies": [
         "flutter_test"
@@ -30,6 +31,11 @@
         "test_api",
         "vector_math"
       ]
+    },
+    {
+      "name": "vector_math",
+      "version": "2.2.0",
+      "dependencies": []
     },
     {
       "name": "flutter",
@@ -70,11 +76,6 @@
         "matcher",
         "meta"
       ]
-    },
-    {
-      "name": "vector_math",
-      "version": "2.2.0",
-      "dependencies": []
     },
     {
       "name": "stack_trace",
@@ -146,7 +147,7 @@
     },
     {
       "name": "async",
-      "version": "2.13.0",
+      "version": "2.11.0",
       "dependencies": [
         "collection",
         "meta"
@@ -163,7 +164,7 @@
     },
     {
       "name": "leak_tracker",
-      "version": "11.0.1",
+      "version": "11.0.2",
       "dependencies": [
         "clock",
         "collection",
@@ -174,19 +175,19 @@
     },
     {
       "name": "term_glyph",
-      "version": "1.2.2",
+      "version": "1.2.1",
       "dependencies": []
     },
     {
       "name": "string_scanner",
-      "version": "1.4.1",
+      "version": "1.2.0",
       "dependencies": [
         "source_span"
       ]
     },
     {
       "name": "source_span",
-      "version": "1.10.1",
+      "version": "1.10.0",
       "dependencies": [
         "collection",
         "path",
@@ -195,7 +196,7 @@
     },
     {
       "name": "boolean_selector",
-      "version": "2.1.2",
+      "version": "2.1.1",
       "dependencies": [
         "source_span",
         "string_scanner"
@@ -203,7 +204,7 @@
     },
     {
       "name": "vm_service",
-      "version": "15.0.2",
+      "version": "14.2.4",
       "dependencies": []
     }
   ],

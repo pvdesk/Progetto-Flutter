@@ -1,6 +1,5 @@
 #version: "3.9"
 name: progetto-flutter
-
 services:
   # --- FLUTTER / DART (CLI + Web) ---
   flutter:
@@ -10,11 +9,10 @@ services:
     volumes:
       - ./:/workspace          # monta tutto il progetto
     ports:
-      - "${WEB_PORT:-8080}:8080"         # Flutter Web
       - "${DEVTOOLS_PORT:-9090}:9090"    # DevTools (opzionale)
     environment:
       - TZ=${TZ:-Europe/Rome}
-    command: bash -lc "flutter --version && sleep infinity"
+    command: bash -lc "flutter run -d web-server --web-port=8090 --web-hostname=0.0.0.0"
     stdin_open: true
     tty: true
     restart: unless-stopped
@@ -39,7 +37,7 @@ services:
   php:
     build:
       context: .
-      dockerfile: Dockerfile.php          # vedi più sotto
+      dockerfile: Dockerfile.php
     image: progetto-flutter-php:8.2
     container_name: php-backend
     ports:
@@ -56,6 +54,16 @@ services:
       - DB_PASS=${MYSQL_PASSWORD:-changemeApp!}
     depends_on:
       - db
+    restart: unless-stopped
+
+  # --- APACHE STATIC WEB SERVER FOR FLUTTER BUILD ---
+  apache-flutter:
+    image: httpd:latest
+    container_name: apache-flutter
+    ports:
+      - "8090:80"
+    volumes:
+      - C:/Users/phvas/www/Progetto-Flutter/build/web:/usr/local/apache2/htdocs/
     restart: unless-stopped
 
   # --- MySQL (OPZIONALE) ---
