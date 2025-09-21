@@ -8,8 +8,9 @@ services:
     working_dir: /workspace
     volumes:
       - ./:/workspace          # monta tutto il progetto
-    ports:
-      - "${DEVTOOLS_PORT:-9090}:9090"    # DevTools (opzionale)
+    ports: 
+      - "8090:8090"
+      - "9090:9090"    # DevTools (opzionale)
     environment:
       - TZ=${TZ:-Europe/Rome}
     command: bash -lc "flutter run -d web-server --web-port=8090 --web-hostname=0.0.0.0"
