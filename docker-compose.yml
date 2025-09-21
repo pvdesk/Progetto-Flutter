@@ -19,42 +19,55 @@ services:
 
   # --- BACKEND LARAVEL (PHP + BUILT-IN SERVER) ---
   laravel-backend:
-    image: composer:latest
+    build:
+      context: ./backend_app
+      dockerfile: dockerfile
     container_name: laravel-backend
     working_dir: /var/www/html
     volumes:
       - ./backend_app:/var/www/html
-    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
     ports:
-    - "8000:8000"
-    depends_on:
-    - db
-    - mongo
-    environment:
-    - COMPOSER_ALLOW_SUPERUSER=1
-
-  # --- BACKEND PHP + APACHE ---
-  php:
-    build:
-      context: .
-      dockerfile: Dockerfile.php
-    image: progetto-flutter-php:8.2
-    container_name: php-backend
-    ports:
-      - "${PHP_PORT:-8084}:80"            # http://localhost:8084
-    volumes:
-      - ./backend-php:/var/www/html       # codice PHP
-      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
-    environment:
-      - TZ=${TZ:-Europe/Rome}
-      # Variabili utili per la tua app PHP
-      - DB_HOST=db
-      - DB_NAME=${MYSQL_DATABASE:-appdb}
-      - DB_USER=${MYSQL_USER:-app}
-      - DB_PASS=${MYSQL_PASSWORD:-changemeApp!}
+      - "8000:80"
     depends_on:
       - db
-    restart: unless-stopped
+      - mongo
+    environment:
+      - TZ=Europe/Rome
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:YOUR_APP_KEY
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${MYSQL_DATABASE:-appdb}
+      - DB_USERNAME=${MYSQL_USER:-app}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-changemeApp!}
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_DRIVER=sync
+
+  # --- BACKEND PHP + APACHE ---
+  # php:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   image: progetto-flutter-php:8.2
+  #   container_name: php-backend
+  #   ports:
+  #     - "${PHP_PORT:-8084}:80"            # http://localhost:8084
+  #   volumes:
+  #     - ./backend-php:/var/www/html       # codice PHP
+  #     - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+  #   environment:
+  #     - TZ=${TZ:-Europe/Rome}
+  #     # Variabili utili per la tua app PHP
+  #     - DB_HOST=db
+  #     - DB_NAME=${MYSQL_DATABASE:-appdb}
+  #     - DB_USER=${MYSQL_USER:-app}
+  #     - DB_PASS=${MYSQL_PASSWORD:-changemeApp!}
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
 
   # --- APACHE STATIC WEB SERVER FOR FLUTTER BUILD ---
   apache-flutter:

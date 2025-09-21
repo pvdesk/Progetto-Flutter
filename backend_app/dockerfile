@@ -1,0 +1,36 @@
+
+FROM php:8.2-apache
+
+# Aggiorna i pacchetti di sistema e installa dipendenze Laravel
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    && apt-get clean
+
+# Abilita mod_rewrite per Apache
+RUN a2enmod rewrite
+
+# Installa estensioni PHP necessarie per Laravel
+RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd mysqli
+
+# Imposta timezone PHP
+RUN printf "date.timezone=%s\n" "Europe/Rome" > /usr/local/etc/php/conf.d/timezone.ini
+
+# Installa Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Imposta la directory di lavoro
+WORKDIR /var/www/html
+
+# Copia il codice sorgente
+COPY . /var/www/html
+
+# Permessi per Apache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+EXPOSE 80
