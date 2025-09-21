@@ -74,7 +74,7 @@ services:
     image: httpd:latest
     container_name: apache-flutter
     ports:
-      - "8090:80"
+      - "8095:80"
     volumes:
       - C:/Users/phvas/www/Progetto-Flutter/build/web:/usr/local/apache2/htdocs/
     restart: unless-stopped
