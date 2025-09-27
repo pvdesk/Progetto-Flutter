@@ -1,0 +1,71 @@
+
+@startuml
+' App Suite - Sequences v5 (Conservative)
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam DefaultFontName Monospace
+skinparam SequenceMessageAlign center
+
+title Sequences — Recipe and Location Flows
+
+' A) Recipe -> Ingredients -> List
+title A) Recipe to Shopping List
+actor User
+participant "Flutter App" as App
+participant "AIRecipeService" as AIS
+participant "Mongo RecipesRaw" as MRec
+participant "ListService" as LSvc
+participant "MySQL Lists" as SQL
+
+User -> App : Inserisce ricetta + N persone
+App -> AIS : POST /ai/recipe/parse
+AIS -> MRec : save raw + parsed
+AIS --> App : ingredients[]
+User -> App : Conferma
+App -> LSvc : POST /lists/{id}/items/bulk
+LSvc -> SQL : INSERT items
+LSvc --> App : OK
+
+' B) Route to Event (JIT Location)
+title B) Route to Event (JIT Location)
+actor User2
+participant "Flutter App" as App2
+participant "LocationService" as Loc
+participant "SnapEventAPI" as EvtAPI
+participant "MapsAPI" as Mapi
+participant "MapsService" as MSvc
+participant "Google Maps" as GMaps
+
+User2 -> App2 : Tap "Apri percorso"
+App2 -> Loc : requestPermissionJIT()
+Loc --> App2 : granted
+App2 -> Loc : getCurrentPosition()
+Loc --> App2 : origin(lat,lng)
+App2 -> EvtAPI : GET /events/{id}
+EvtAPI --> App2 : dest(lat,lng)
+App2 -> Mapi : GET /maps/route
+Mapi -> MSvc : compose route URL
+MSvc --> Mapi : maps URL
+Mapi --> App2 : maps URL
+App2 -> GMaps : open route
+
+' C) Nearby Stores (CardKeeper)
+title C) Nearby Stores (CardKeeper)
+actor User3
+participant "Flutter App" as App3
+participant "LocationService" as Loc3
+participant "MapsAPI" as Mapi3
+participant "MapsService" as MSvc3
+
+User3 -> App3 : Tap "Negozi vicini"
+App3 -> Loc3 : requestPermissionJIT()
+Loc3 --> App3 : granted
+App3 -> Loc3 : getCurrentPosition()
+Loc3 --> App3 : lat,lng
+App3 -> Mapi3 : GET /maps/nearby?lat=&lng=&type=store&brand=Coop
+Mapi3 -> MSvc3 : nearby(...)
+MSvc3 --> Mapi3 : [POI]
+Mapi3 --> App3 : lista POI
+
+@enduml

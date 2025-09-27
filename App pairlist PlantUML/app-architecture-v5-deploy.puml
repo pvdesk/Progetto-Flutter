@@ -1,0 +1,34 @@
+
+@startuml
+' App Suite - Deployment v5 (Conservative)
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam DefaultFontName Monospace
+
+title Deployment Overview
+
+node "User Devices" {
+  component "Flutter App + Widgets" as Mobile
+}
+
+node "Backend (Laravel)" {
+  component "HTTP API" as APIgw
+  component "Services Layer" as Svc
+  database "MySQL" as SQLdb
+  database "MongoDB" as MDB
+  component "Redis (pub/sub)" as Redis
+  component "Object Storage (S3/MinIO)" as S3
+}
+
+cloud "External Integrations" as Ext
+
+Mobile --> APIgw : HTTPS
+APIgw --> Svc
+Svc --> SQLdb
+Svc --> MDB
+Svc --> Redis
+Svc --> S3
+Svc .. Ext
+
+@enduml

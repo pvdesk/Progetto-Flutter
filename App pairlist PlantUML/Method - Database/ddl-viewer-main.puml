@@ -1,0 +1,10 @@
+
+@startuml
+skinparam DefaultFontName Monospace
+skinparam shadowing false
+skinparam linetype ortho
+
+title App Suite — DDL Viewer (include db_ddl.puml)
+!include db_ddl.puml
+
+@enduml

@@ -1,0 +1,351 @@
+
+@startuml
+' App Suite - Classes v5 (Domain + Services with Methods)
+' Conservative syntax for maximal compatibility
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam DefaultFontName Monospace
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #ffffff
+skinparam PackageTitleFontSize 16
+skinparam ClassFontSize 12
+
+title App Suite — Class Model (Properties + Methods)
+
+' =======================
+' CORE (Auth & Sharing)
+' =======================
+package "Core" {
+  class User {
+    +id : bigint
+    +email : string
+    +pwd_hash : string
+    +name : string
+    +plan : string
+    +twofa_secret : string
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +checkPassword(plain:string) : bool
+    +enable2FA(secret:string) : void
+    +disable2FA() : void
+  }
+
+  class Pair {
+    +id : bigint
+    +owner_id : bigint
+    +name : string
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +rename(name:string) : void
+  }
+
+  class PairMember {
+    +pair_id : bigint
+    +user_id : bigint
+    +role : string
+    +joined_at : datetime
+    --
+    +promoteToOwner() : void
+    +demoteToMember() : void
+  }
+
+  class Invite {
+    +id : bigint
+    +type : string
+    +creator_id : bigint
+    +token : string
+    +target_email : string
+    +status : string
+    +expires_at : datetime
+    +created_at : datetime
+    --
+    +accept(userId:bigint) : void
+    +expire() : void
+    +isValid(now:datetime) : bool
+  }
+
+  User "1" -- "0..*" Pair : owns
+  Pair "1" -- "1..*" PairMember : has
+  User "1" -- "0..*" Invite : creates
+}
+
+' =======================
+' PAIRLIST (Lists)
+' =======================
+package "PairList" {
+  class List {
+    +id : bigint
+    +pair_id : bigint
+    +name : string
+    +is_archived : bool
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +archive() : void
+    +unarchive() : void
+    +rename(name:string) : void
+  }
+
+  class Section {
+    +id : bigint
+    +list_id : bigint
+    +name : string
+    +icon : string
+    +color : string
+    +position : int
+    +is_default : bool
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +reorder(newPos:int) : void
+    +rename(name:string) : void
+  }
+
+  class ListItem {
+    +id : bigint
+    +list_id : bigint
+    +section_id : bigint
+    +title : string
+    +notes : text
+    +qty : decimal
+    +unit : string
+    +dept : string
+    +is_pantry : bool
+    +assigned_to : bigint
+    +is_done : bool
+    +position : int
+    +due_at : datetime
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +check() : void
+    +uncheck() : void
+    +assign(userId:bigint) : void
+    +moveToSection(sectionId:bigint) : void
+    +updateQty(qty:decimal, unit:string) : void
+  }
+
+  Pair "1" -- "0..*" List : has
+  List "1" -- "0..*" Section : groups
+  List "1" -- "0..*" ListItem : contains
+  Section "1" -- "0..*" ListItem : categorizes
+}
+
+' =======================
+' SNAPEVENT (Events)
+' =======================
+package "SnapEvent" {
+  class Event {
+    +id : bigint
+    +owner_id : bigint
+    +title : string
+    +start_at : datetime
+    +end_at : datetime
+    +location : string
+    +lat : decimal
+    +lng : decimal
+    +notes : text
+    +ics_hash : string
+    +public_hash : string
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +reschedule(start:datetime, end:datetime) : void
+    +changeLocation(loc:string, lat:decimal, lng:decimal) : void
+    +icsUrl() : string
+    +publicUrl() : string
+  }
+
+  class EventGuest {
+    +event_id : bigint
+    +guest : string
+    +status : string
+    --
+    +accept() : void
+    +decline() : void
+  }
+
+  User "1" -- "0..*" Event : owns
+  Event "1" -- "0..*" EventGuest : invites
+}
+
+' =======================
+' AUTOWARRANTY (Assets)
+' =======================
+package "AutoWarrantyCard" {
+  class Asset {
+    +id : bigint
+    +owner_id : bigint
+    +name : string
+    +category : string
+    +brand : string
+    +model : string
+    +serial : string
+    +purchase_date : date
+    +price : decimal
+    +notes : text
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+    --
+    +rename(name:string) : void
+    +changeOwner(ownerId:bigint) : void
+  }
+
+  class Receipt {
+    +id : bigint
+    +item_id : bigint
+    +file_url : string
+    +vendor : string
+    +doc_date : date
+    +doc_number : string
+    +tax_id : string
+    +mongo_ref : string
+    +created_at : datetime
+    --
+    +linkToAsset(itemId:bigint) : void
+  }
+
+  class Warranty {
+    +id : bigint
+    +item_id : bigint
+    +start_date : date
+    +end_date : date
+    +terms : text
+    +vendor_contact : string
+    --
+    +extend(newEnd:date) : void
+    +isActive(on:date) : bool
+    +remainingDays(on:date) : int
+  }
+
+  class Reminder {
+    +id : bigint
+    +related_type : string
+    +related_id : bigint
+    +due_at : datetime
+    +status : string
+    --
+    +markSent() : void
+    +dismiss() : void
+  }
+
+  Asset "1" -- "0..*" Receipt : has
+  Asset "1" -- "0..1" Warranty : coveredBy
+  Reminder ..> Warranty : for
+  Reminder ..> Event : for
+  Reminder ..> ListItem : for
+}
+
+' =======================
+' CARDKEEPER (Loyalty)
+' =======================
+package "CardKeeper" {
+  class LoyaltyCard {
+    +id : bigint
+    +owner_id : bigint
+    +store_name : string
+    +barcode_format : string
+    +code_value : string
+    +color : string
+    +notes : string
+    +created_at : datetime
+    --
+    +asBarcodePayload() : string
+  }
+
+  class Store {
+    +id : bigint
+    +name : string
+    +brand : string
+    +address : string
+    +lat : decimal
+    +lng : decimal
+    +created_at : datetime
+    --
+    +updateGeo(lat:decimal, lng:decimal) : void
+  }
+}
+
+' =======================
+' SERVICES (Laravel)
+' =======================
+package "Services" {
+  class AuthService {
+    +register(email:string, pwd:string, name:string) : User
+    +login(email:string, pwd:string) : string
+    +enable2FA(userId:bigint) : void
+  }
+
+  class PairService {
+    +createPair(ownerId:bigint, name:string) : Pair
+    +invite(pairId:bigint, email:string) : Invite
+    +addMember(pairId:bigint, userId:bigint, role:string) : void
+  }
+
+  class ListService {
+    +createList(pairId:bigint, name:string) : List
+    +addItemsBulk(listId:bigint, items:any[]) : int
+    +updateItem(itemId:bigint, patch:any) : void
+    +reorderSection(sectionId:bigint, newPos:int) : void
+  }
+
+  class AIRecipeService {
+    +parseRecipe(userId:bigint, text:string, servings:int) : any
+    +scaleIngredients(ings:any[], servings:int) : any[]
+    +normalize(ings:any[]) : any[]
+  }
+
+  class OcrService {
+    +runOnDevice(image:string) : any
+    +fallbackServer(image:string) : any
+    +savePayload(userId:bigint, text:string) : string
+  }
+
+  class CalendarService {
+    +createEvent(ownerId:bigint, payload:any) : Event
+    +generateICS(eventId:bigint) : string
+    +pushGoogle(eventId:bigint) : void
+    +pushEventKit(eventId:bigint) : void
+  }
+
+  class ReminderService {
+    +schedule(type:string, relatedId:bigint, when:datetime) : Reminder
+    +dispatchDue(now:datetime) : int
+    +dismiss(id:bigint) : void
+  }
+
+  class LoyaltyService {
+    +createCard(ownerId:bigint, store:string, fmt:string, code:string) : LoyaltyCard
+    +showPayload(cardId:bigint) : string
+  }
+
+  class MapsService {
+    +geocode(query:string) : any
+    +nearby(lat:decimal, lng:decimal, type:string, brand:string) : any[]
+    +routeLink(originLat:decimal, originLng:decimal, destLat:decimal, destLng:decimal) : string
+  }
+}
+
+' =======================
+' RELATIONS Services -> Domain
+' =======================
+AuthService ..> User
+PairService ..> Pair
+PairService ..> Invite
+ListService ..> List
+ListService ..> Section
+ListService ..> ListItem
+AIRecipeService ..> ListService
+OcrService ..> Receipt
+CalendarService ..> Event
+ReminderService ..> Reminder
+LoyaltyService ..> LoyaltyCard
+MapsService ..> Store
+
+@enduml
