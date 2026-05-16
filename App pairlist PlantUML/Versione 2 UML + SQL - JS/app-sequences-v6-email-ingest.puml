@@ -1,0 +1,54 @@
+
+@startuml
+' App Suite - Sequences v6 (Email forward + Share/Browser Extension)
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam DefaultFontName Monospace
+skinparam SequenceMessageAlign center
+
+title Sequences — Email & Extensions to Receipt Draft
+
+actor User
+participant "Mail Provider (Inbound)" as Provider
+participant "InboundEmailAPI" as API
+participant "EmailIngestService" as Svc
+participant "S3/MinIO" as Store
+participant "OcrService" as OCR
+participant "ReceiptService" as Rcv
+
+User -> Provider : Forward email to alias\n(pietro+abc123@tuo.dominio)
+Provider -> API : POST /inbound/email (signed)
+API -> Svc : parse(to,from,subject,attachments)
+Svc -> Store : save attachments
+Svc -> Rcv : create Draft Receipt (source='email', status='draft')
+Svc -> OCR : queue ParseReceiptFields
+OCR --> Rcv : vendor/doc_date/total?
+Rcv --> User : push "Bozza pronta"
+
+' Share Extension (iOS/Android)
+actor User2
+participant "Share Extension" as Ext
+participant "ReceiptsAPI" as Api2
+participant "ReceiptService" as Rcv2
+participant "OcrService" as OCR2
+
+User2 -> Ext : Share PDF/IMG from Mail viewer
+Ext -> Api2 : POST /receipts/draft (file + meta)
+Api2 -> Rcv2 : create Draft Receipt (source='share_ext')
+Rcv2 -> OCR2 : parse fields (async)
+OCR2 --> Rcv2 : suggestions
+Rcv2 --> User2 : show draft in app
+
+' Browser Extension (Gmail/Outlook Web)
+actor User3
+participant "Browser Extension" as BExt
+participant "ReceiptsAPI" as Api3
+participant "ReceiptService" as Rcv3
+
+User3 -> BExt : Click "Salva in App"
+BExt -> Api3 : POST /receipts/draft (file/url/html)
+Api3 -> Rcv3 : create Draft Receipt (source='browser_ext')
+Rcv3 --> User3 : draft ready
+
+@enduml

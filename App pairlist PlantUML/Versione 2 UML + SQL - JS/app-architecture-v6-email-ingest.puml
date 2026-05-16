@@ -1,0 +1,249 @@
+
+@startuml
+' App Suite - Architecture v6 (Email Ingest + Extensions) — conservative syntax
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam DefaultFontName Monospace
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #ffffff
+skinparam PackageTitleFontSize 16
+skinparam ClassFontSize 12
+
+title App Suite — Architecture v6 (Email Ingest + Share/Browser Extension)
+
+' ===================== CORE =====================
+package "Core" {
+  class User {
+    +id : bigint
+    +email : string
+    +email_alias : string
+    +pwd_hash : string
+    +name : string
+    +plan : string
+    +twofa_secret : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class Pair {
+    +id : bigint
+    +owner_id : bigint
+    +name : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class PairMember {
+    +pair_id : bigint
+    +user_id : bigint
+    +role : string
+    +joined_at : datetime
+  }
+
+  User "1" -- "0..*" Pair : owns
+  Pair "1" -- "1..*" PairMember : has
+}
+
+' ===================== PAIRLIST =====================
+package "PairList" {
+  class List {
+    +id : bigint
+    +pair_id : bigint
+    +name : string
+    +is_archived : bool
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class Section {
+    +id : bigint
+    +list_id : bigint
+    +name : string
+    +icon : string
+    +color : string
+    +position : int
+    +is_default : bool
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class ListItem {
+    +id : bigint
+    +list_id : bigint
+    +section_id : bigint
+    +title : string
+    +notes : text
+    +qty : decimal
+    +unit : string
+    +dept : string
+    +is_pantry : bool
+    +assigned_to : bigint
+    +is_done : bool
+    +position : int
+    +due_at : datetime
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  Pair "1" -- "0..*" List : has
+  List "1" -- "0..*" Section : groups
+  List "1" -- "0..*" ListItem : contains
+  Section "1" -- "0..*" ListItem : categorizes
+}
+
+' ===================== SNAPEVENT =====================
+package "SnapEvent" {
+  class Event {
+    +id : bigint
+    +owner_id : bigint
+    +title : string
+    +start_at : datetime
+    +end_at : datetime
+    +location : string
+    +lat : decimal
+    +lng : decimal
+    +notes : text
+    +ics_hash : string
+    +public_hash : string
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class EventGuest {
+    +event_id : bigint
+    +guest : string
+    +status : string
+  }
+
+  User "1" -- "0..*" Event : owns
+  Event "1" -- "0..*" EventGuest : invites
+}
+
+' ===================== AUTOWARRANTY =====================
+package "AutoWarrantyCard" {
+  class Asset {
+    +id : bigint
+    +owner_id : bigint
+    +name : string
+    +category : string
+    +brand : string
+    +model : string
+    +serial : string
+    +purchase_date : date
+    +price : decimal
+    +notes : text
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class Receipt {
+    +id : bigint
+    +item_id : bigint
+    +file_url : string
+    +source : string
+    +status : string
+    +vendor : string
+    +doc_date : date
+    +doc_number : string
+    +tax_id : string
+    +total : decimal
+    +mongo_ref : string
+    +created_at : datetime
+    +updated_at : datetime
+  }
+
+  class Warranty {
+    +id : bigint
+    +item_id : bigint
+    +start_date : date
+    +end_date : date
+    +terms : text
+    +vendor_contact : string
+  }
+
+  class Reminder {
+    +id : bigint
+    +related_type : string
+    +related_id : bigint
+    +due_at : datetime
+    +status : string
+  }
+
+  Asset "1" -- "0..*" Receipt : has
+  Asset "1" -- "0..1" Warranty : coveredBy
+}
+
+' ===================== CARDKEEPER =====================
+package "CardKeeper" {
+  class LoyaltyCard {
+    +id : bigint
+    +owner_id : bigint
+    +store_name : string
+    +barcode_format : string
+    +code_value : string
+    +color : string
+    +notes : string
+    +created_at : datetime
+  }
+
+  class Store {
+    +id : bigint
+    +name : string
+    +brand : string
+    +address : string
+    +lat : decimal
+    +lng : decimal
+    +created_at : datetime
+  }
+}
+
+' ===================== EMAIL INGEST =====================
+package "Email Ingest" {
+  class InboundEmail {
+    +id : bigint
+    +user_id : bigint
+    +from_email : string
+    +to_email : string
+    +subject : string
+    +storage_ref : string
+    +received_at : datetime
+    +created_at : datetime
+  }
+
+  class EmailAttachment {
+    +id : bigint
+    +inbound_id : bigint
+    +filename : string
+    +mime : string
+    +size_bytes : int
+    +storage_ref : string
+  }
+}
+
+InboundEmail "1" -- "0..*" EmailAttachment : has
+InboundEmail "1" ..> Receipt : creates draft
+
+' ===================== SERVICES / API =====================
+package "Services" {
+  class ReceiptService
+  class EmailIngestService
+  class OcrService
+  class MapsService
+}
+
+package "API" {
+  class InboundEmailAPI
+  class ReceiptsAPI
+  class AssetsAPI
+}
+
+InboundEmailAPI ..> EmailIngestService
+ReceiptsAPI ..> ReceiptService
+ReceiptService ..> OcrService
+EmailIngestService ..> OcrService
+
+@enduml
