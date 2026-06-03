@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'dart:js' as js;
+import '../utils/web_utils.dart';
 
 import '../providers/document_provider.dart';
 import '../models/document_model.dart';
@@ -69,7 +69,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     try {
       if (kIsWeb) {
         // Su Web, apriamo semplicemente il link di download in una nuova scheda
-        js.context.callMethod('open', [downloadUrl, '_blank']);
+        openUrlInNewTab(downloadUrl);
         
         // Se è un documento ricevuto, segnamo come letto localmente poiché il download fa scattare la lettura sul server
         if (doc.isCompanySent && !doc.isRead) {

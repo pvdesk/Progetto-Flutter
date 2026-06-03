@@ -1,0 +1,10 @@
+# Istruzioni per la firma di release:
+# 1. Copia questo file rinominandolo in 'key.properties' nella stessa cartella (android/)
+# 2. Genera un keystore tramite keytool:
+#    keytool -genkey -v -keystore app/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+# 3. Compila le seguenti righe con i tuoi dati:
+
+storePassword=tua_password_keystore
+keyPassword=tua_password_chiave
+keyAlias=upload
+storeFile=upload-keystore.jks
