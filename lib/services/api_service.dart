@@ -3,8 +3,8 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
-
-class ApiService {
+import 'package:dio/io.dart';
+import 'dart:io';class ApiService {
   static const String _baseUrlKey = 'api_base_url';
   // Configurazione di default (modificabile dalla schermata di login)
   static String get defaultBaseUrl => !kIsWeb && defaultTargetPlatform == TargetPlatform.android
@@ -22,6 +22,15 @@ class ApiService {
     if (!kIsWeb) {
       cookieJar = CookieJar();
       dio.interceptors.add(CookieManager(cookieJar));
+      
+      // FIX SSL CHAIN ISSUE: ignora gli errori del certificato su device fisici
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+          return client;
+        },
+      );
     } else {
       // Configurazione Web per abilitare l'invio e la ricezione automatica dei Cookie/Sessioni
       dio.options.extra['withCredentials'] = true;
