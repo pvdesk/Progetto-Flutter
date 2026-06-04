@@ -44,7 +44,17 @@ class ApiService {
 
   String _normalizeUrl(String url) {
     String trimmed = url.trim();
-    if (trimmed.isNotEmpty && !trimmed.endsWith('/')) {
+    if (trimmed.isEmpty) return trimmed;
+
+    // Se l'indirizzo contiene la sottocartella /app_gestione ma non contiene /public, lo aggiungiamo noi
+    if (trimmed.contains('/app_gestione') && !trimmed.contains('/public')) {
+      if (trimmed.endsWith('/')) {
+        trimmed = trimmed.substring(0, trimmed.length - 1);
+      }
+      trimmed = '$trimmed/public';
+    }
+
+    if (!trimmed.endsWith('/')) {
       trimmed = '$trimmed/';
     }
     return trimmed;
