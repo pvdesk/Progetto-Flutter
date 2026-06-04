@@ -9,9 +9,10 @@ import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
 import 'widgets/update_checker_wrapper.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final apiService = ApiService();
+  await apiService.init();
 
   runApp(
     MultiProvider(

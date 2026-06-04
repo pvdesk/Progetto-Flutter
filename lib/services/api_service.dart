@@ -32,8 +32,10 @@ class ApiService {
       'Accept': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
     };
-    
-    _initBaseUrl();
+  }
+
+  Future<void> init() async {
+    await _initBaseUrl();
   }
 
   static const String appVersion = '1.0.0';
