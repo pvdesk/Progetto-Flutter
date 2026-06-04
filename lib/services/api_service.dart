@@ -46,6 +46,15 @@ class ApiService {
     String trimmed = url.trim();
     if (trimmed.isEmpty) return trimmed;
 
+    // Forza lo schema http/https se mancante
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      if (trimmed.startsWith('localhost') || trimmed.startsWith('127.0.0.1') || trimmed.startsWith('192.168.')) {
+        trimmed = 'http://$trimmed';
+      } else {
+        trimmed = 'https://$trimmed';
+      }
+    }
+
     // Se l'indirizzo contiene la sottocartella /app_gestione ma non contiene /public, lo aggiungiamo noi
     if (trimmed.contains('/app_gestione') && !trimmed.contains('/public')) {
       if (trimmed.endsWith('/')) {
