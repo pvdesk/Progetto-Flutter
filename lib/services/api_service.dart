@@ -6,8 +6,10 @@ import 'package:flutter/foundation.dart';
 
 class ApiService {
   static const String _baseUrlKey = 'api_base_url';
-  // Configurazione di default (10.0.2.2 è l'alias per localhost dell'host da emulatore Android)
-  static const String defaultBaseUrl = 'http://localhost:8000';
+  // Configurazione di default (modificabile dalla schermata di login)
+  static String get defaultBaseUrl => !kIsWeb && defaultTargetPlatform == TargetPlatform.android
+      ? 'http://10.0.2.2:8000'
+      : 'http://localhost:8000';
 
   late final Dio dio;
   late final CookieJar cookieJar;
@@ -53,14 +55,6 @@ class ApiService {
       } else {
         trimmed = 'https://$trimmed';
       }
-    }
-
-    // Se l'indirizzo contiene la sottocartella /app_gestione ma non contiene /public, lo aggiungiamo noi
-    if (trimmed.contains('/app_gestione') && !trimmed.contains('/public')) {
-      if (trimmed.endsWith('/')) {
-        trimmed = trimmed.substring(0, trimmed.length - 1);
-      }
-      trimmed = '$trimmed/public';
     }
 
     if (!trimmed.endsWith('/')) {
