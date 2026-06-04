@@ -35,7 +35,7 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await apiService.dio.get('/api/chat/contacts');
+      final response = await apiService.dio.get('api/chat/contacts');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         final list = data['contacts'] as List<dynamic>;
@@ -68,7 +68,7 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await apiService.dio.get('/api/chat/messages/$contactId');
+      final response = await apiService.dio.get('api/chat/messages/$contactId');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         final list = data['messages'] as List<dynamic>;
@@ -90,7 +90,7 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       final response = await apiService.dio.post(
-        '/api/chat/messages',
+        'api/chat/messages',
         data: {
           'destinatario_user_id': contactId,
           'testo': text,
@@ -115,7 +115,7 @@ class ChatProvider extends ChangeNotifier {
   // Carica contatore messaggi non letti globali
   Future<void> fetchUnreadCount() async {
     try {
-      final response = await apiService.dio.get('/api/chat/unread-count');
+      final response = await apiService.dio.get('api/chat/unread-count');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         _unreadCount = data['unread_count'] as int? ?? 0;
@@ -134,7 +134,7 @@ class ChatProvider extends ChangeNotifier {
       if (_activeContact != null) {
         // Aggiorna silenziosamente i messaggi
         try {
-          final response = await apiService.dio.get('/api/chat/messages/${_activeContact!.id}');
+          final response = await apiService.dio.get('api/chat/messages/${_activeContact!.id}');
           final data = response.data as Map<String, dynamic>;
           if (data['success'] == true) {
             final list = data['messages'] as List<dynamic>;

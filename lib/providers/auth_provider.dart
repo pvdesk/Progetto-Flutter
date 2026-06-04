@@ -51,7 +51,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final response = await apiService.dio.post(
-        '/api/login',
+        'api/login',
         data: {
           'email': email,
           'password': password,
@@ -93,7 +93,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await apiService.dio.post('/api/chat/accept-privacy');
+      final response = await apiService.dio.post('api/chat/accept-privacy');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         if (_currentUser != null) {

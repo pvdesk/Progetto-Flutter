@@ -36,24 +36,48 @@ class ApiService {
     _initBaseUrl();
   }
 
+  static const String appVersion = '1.0.0';
+
   String get baseUrl => _baseUrl;
+
+  String _normalizeUrl(String url) {
+    String trimmed = url.trim();
+    if (trimmed.isNotEmpty && !trimmed.endsWith('/')) {
+      trimmed = '$trimmed/';
+    }
+    return trimmed;
+  }
 
   Future<void> _initBaseUrl() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _baseUrl = prefs.getString(_baseUrlKey) ?? defaultBaseUrl;
+      final storedUrl = prefs.getString(_baseUrlKey) ?? defaultBaseUrl;
+      _baseUrl = _normalizeUrl(storedUrl);
       dio.options.baseUrl = _baseUrl;
     } catch (e) {
-      _baseUrl = defaultBaseUrl;
-      dio.options.baseUrl = defaultBaseUrl;
+      _baseUrl = _normalizeUrl(defaultBaseUrl);
+      dio.options.baseUrl = _baseUrl;
     }
   }
 
   Future<void> setBaseUrl(String newUrl) async {
-    _baseUrl = newUrl;
-    dio.options.baseUrl = newUrl;
+    final normalized = _normalizeUrl(newUrl);
+    _baseUrl = normalized;
+    dio.options.baseUrl = normalized;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_baseUrlKey, newUrl);
+    await prefs.setString(_baseUrlKey, normalized);
+  }
+
+  Future<Map<String, dynamic>?> checkAppUpdate() async {
+    try {
+      final response = await dio.get('api/mobile/version');
+      if (response.data is Map<String, dynamic>) {
+        return response.data as Map<String, dynamic>;
+      }
+    } catch (_) {
+      // Ignora errori di connessione per il controllo versione
+    }
+    return null;
   }
 
   Future<void> clearCookies() async {

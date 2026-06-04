@@ -7,6 +7,7 @@ import 'providers/document_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
+import 'widgets/update_checker_wrapper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,9 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const AuthGate(),
+      home: const UpdateCheckerWrapper(
+        child: AuthGate(),
+      ),
     );
   }
 }

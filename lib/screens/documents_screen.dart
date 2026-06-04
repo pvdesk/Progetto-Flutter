@@ -56,7 +56,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
 
   void _downloadDocument(BuildContext context, DocumentModel doc) async {
     final apiService = context.read<ApiService>();
-    final downloadUrl = '${apiService.baseUrl}/api/mobile/documenti/${doc.id}/download';
+    final downloadUrl = '${apiService.baseUrl}api/mobile/documenti/${doc.id}/download';
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -80,7 +80,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
       } else {
         // Su Mobile, eseguiamo la chiamata di download
         final response = await apiService.dio.get(
-          '/api/mobile/documenti/${doc.id}/download',
+          'api/mobile/documenti/${doc.id}/download',
           options: Options(responseType: ResponseType.bytes),
         );
 

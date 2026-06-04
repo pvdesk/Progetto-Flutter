@@ -27,7 +27,7 @@ class DocumentProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await apiService.dio.get('/api/mobile/documenti');
+      final response = await apiService.dio.get('api/mobile/documenti');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         final list = data['documenti'] as List<dynamic>;
@@ -48,7 +48,7 @@ class DocumentProvider extends ChangeNotifier {
   // Segna un documento dell'azienda come letto (presa visione)
   Future<bool> markAsRead(int documentId) async {
     try {
-      final response = await apiService.dio.post('/api/mobile/documenti/$documentId/presa-visione');
+      final response = await apiService.dio.post('api/mobile/documenti/$documentId/presa-visione');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
         // Aggiorna lo stato locale senza rifare la chiamata di rete completa
@@ -95,7 +95,7 @@ class DocumentProvider extends ChangeNotifier {
       });
 
       final response = await apiService.dio.post(
-        '/api/mobile/documenti',
+        'api/mobile/documenti',
         data: formData,
       );
 
