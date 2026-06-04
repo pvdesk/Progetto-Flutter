@@ -70,12 +70,26 @@ class AuthProvider extends ChangeNotifier {
         _errorMessage = data['message'] as String? ?? 'Credenziali non valide.';
       }
     } on DioException catch (e) {
-      if (e.response != null && e.response?.data is Map) {
-        final data = e.response?.data as Map<String, dynamic>;
-        _errorMessage = data['message'] as String? ?? 'Credenziali non valide.';
-      } else {
-        _errorMessage = 'Errore di connessione. Verifica il server.';
-      }
+      String? serverMessage;
+      try {
+        if (e.response != null && e.response?.data != null) {
+          final rawData = e.response!.data;
+          Map<String, dynamic>? data;
+          if (rawData is Map) {
+            data = rawData as Map<String, dynamic>;
+          } else if (rawData is String) {
+            final decoded = jsonDecode(rawData);
+            if (decoded is Map) {
+              data = decoded as Map<String, dynamic>;
+            }
+          }
+          if (data != null) {
+            serverMessage = data['message'] as String?;
+          }
+        }
+      } catch (_) {}
+
+      _errorMessage = serverMessage ?? 'Errore di connessione. Verifica il server.';
     } catch (e) {
       _errorMessage = 'Si è verificato un errore imprevisto.';
     }
