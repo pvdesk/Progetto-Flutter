@@ -4,12 +4,18 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/io.dart';
-import 'dart:io';class ApiService {
+import 'dart:io';
+import 'dart:convert';
+
+class ApiService {
   static const String _baseUrlKey = 'api_base_url';
   // Configurazione di default (modificabile dalla schermata di login)
   static String get defaultBaseUrl => !kIsWeb && defaultTargetPlatform == TargetPlatform.android
       ? 'http://10.0.2.2:8000'
       : 'http://localhost:8000';
+
+  // URL del file JSON centrale con la mappatura CodiceAzienda -> ServerURL
+  static const String masterConfigUrl = 'https://www.inthegra.it/app_gestione/public/app_clients.json';
 
   late final Dio dio;
   late final CookieJar cookieJar;
@@ -108,5 +114,33 @@ import 'dart:io';class ApiService {
     if (!kIsWeb) {
       await cookieJar.deleteAll();
     }
+  }
+
+  Future<String?> resolveCompanyCode(String code) async {
+    try {
+      final tempDio = Dio();
+      final response = await tempDio.get(masterConfigUrl);
+      
+      Map<String, dynamic> config = {};
+      
+      if (response.data is Map<String, dynamic>) {
+        config = response.data as Map<String, dynamic>;
+      } else if (response.data is String) {
+        final decoded = jsonDecode(response.data);
+        if (decoded is Map<String, dynamic>) {
+          config = decoded;
+        }
+      } else {
+         return null;
+      }
+      
+      final serverUrl = config[code.trim().toUpperCase()];
+      if (serverUrl != null && serverUrl is String) {
+        return serverUrl;
+      }
+    } catch (e) {
+      throw Exception('Impossibile contattare il server di configurazione. Controlla la tua connessione.');
+    }
+    return null; // Codice non trovato
   }
 }

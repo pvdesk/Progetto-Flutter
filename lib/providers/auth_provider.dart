@@ -44,12 +44,25 @@ class AuthProvider extends ChangeNotifier {
     await prefs.remove('cached_user');
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String companyCode, String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
+      // 1. Risolvi il codice azienda
+      final serverUrl = await apiService.resolveCompanyCode(companyCode);
+      if (serverUrl == null) {
+        _errorMessage = 'Codice azienda non valido o non trovato.';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      
+      // 2. Imposta l'indirizzo base
+      await apiService.setBaseUrl(serverUrl);
+
+      // 3. Esegui il login
       final response = await apiService.dio.post(
         'api/login',
         data: {

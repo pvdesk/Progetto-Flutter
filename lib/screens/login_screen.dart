@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 
@@ -12,24 +13,30 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _companyCodeController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _urlController = TextEditingController();
   bool _obscurePassword = true;
-  bool _showSettings = false;
 
   @override
   void initState() {
     super.initState();
-    final apiService = context.read<ApiService>();
-    _urlController.text = apiService.baseUrl;
+    _loadSavedCompanyCode();
+  }
+
+  Future<void> _loadSavedCompanyCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCode = prefs.getString('saved_company_code');
+    if (savedCode != null && mounted) {
+      _companyCodeController.text = savedCode;
+    }
   }
 
   @override
   void dispose() {
+    _companyCodeController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _urlController.dispose();
     super.dispose();
   }
 
@@ -37,14 +44,15 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    final apiService = context.read<ApiService>();
 
-    // Salva l'URL prima del login
-    if (_showSettings) {
-      await apiService.setBaseUrl(_urlController.text.trim());
+    final companyCode = _companyCodeController.text.trim();
+    if (companyCode.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('saved_company_code', companyCode);
     }
 
     final success = await authProvider.login(
+      companyCode,
       _emailController.text.trim(),
       _passwordController.text,
     );
@@ -143,6 +151,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // Input Codice Azienda
+                          TextFormField(
+                            controller: _companyCodeController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Codice Azienda',
+                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                              prefixIcon: const Icon(Icons.business_center_outlined, color: Color(0xFFFF8C61)),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.04),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: Colors.redAccent),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+                              ),
+                            ),
+                            validator: (val) {
+                              if (val == null || val.isEmpty) return 'Inserisci il Codice Azienda';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
                           // Input Email
                           TextFormField(
                             controller: _emailController,
@@ -249,60 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Impostazioni Connessione a comparsa
-                  TextButton.icon(
-                    onPressed: () => setState(() => _showSettings = !_showSettings),
-                    icon: Icon(
-                      _showSettings ? Icons.keyboard_arrow_up : Icons.settings,
-                      color: Colors.white70,
-                      size: 18,
-                    ),
-                    label: const Text(
-                      'Impostazioni Server',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                  
-                  if (_showSettings) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.04),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.08)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Indirizzo Server Backend',
-                            style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _urlController,
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              filled: true,
-                              fillColor: Colors.black12,
-                              hintText: 'Es: http://10.0.2.2:8000',
-                              hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Color(0xFFFF6B35)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
