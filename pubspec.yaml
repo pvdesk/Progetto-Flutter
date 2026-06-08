@@ -1,6 +1,7 @@
 name: progetto_flutter
 description: Un semplice progetto Flutter
 publish_to: "none"
+version: 1.0.1+1
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -17,6 +18,9 @@ dependencies:
   intl: ^0.19.0
   file_picker: ^8.0.0
   url_launcher: ^6.3.2
+  firebase_core: ^4.10.0
+  firebase_messaging: ^16.3.0
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:

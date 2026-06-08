@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
@@ -28,6 +29,7 @@ class AuthProvider extends ChangeNotifier {
       if (userJson != null) {
         _currentUser = UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
         notifyListeners();
+        _syncDeviceToken();
       }
     } catch (_) {
       // Ignora errori di caricamento cache
@@ -42,6 +44,17 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _clearPersistedUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('cached_user');
+  }
+
+  Future<void> _syncDeviceToken() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        await apiService.updateDeviceToken(token);
+      }
+    } catch (e) {
+      debugPrint('Errore nel recupero del token FCM: $e');
+    }
   }
 
   Future<bool> login(String companyCode, String email, String password) async {
@@ -78,6 +91,7 @@ class AuthProvider extends ChangeNotifier {
         await _persistUser(_currentUser!);
         _isLoading = false;
         notifyListeners();
+        _syncDeviceToken();
         return true;
       } else {
         _errorMessage = data['message'] as String? ?? 'Credenziali non valide.';
@@ -103,6 +117,80 @@ class AuthProvider extends ChangeNotifier {
       } catch (_) {}
 
       _errorMessage = serverMessage ?? 'Errore di connessione. Verifica il server.';
+    } catch (e) {
+      _errorMessage = 'Si è verificato un errore imprevisto.';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> register(
+    String companyCode,
+    String nome,
+    String cognome,
+    String email,
+    String password,
+    String codiceFiscale,
+    String dataNascita,
+  ) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final serverUrl = await apiService.resolveCompanyCode(companyCode);
+      if (serverUrl == null) {
+        _errorMessage = 'Codice azienda non valido o non trovato.';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      await apiService.setBaseUrl(serverUrl);
+
+      final response = await apiService.dio.post(
+        'api/mobile/register',
+        data: {
+          'nome': nome,
+          'cognome': cognome,
+          'email': email,
+          'password': password,
+          'codice_fiscale': codiceFiscale,
+          if (dataNascita.isNotEmpty) 'data_nascita': dataNascita,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = data['message'] as String? ?? 'Errore durante la registrazione.';
+      }
+    } on DioException catch (e) {
+      String? serverMessage;
+      try {
+        if (e.response != null && e.response?.data != null) {
+          final rawData = e.response!.data;
+          Map<String, dynamic>? data;
+          if (rawData is Map) {
+            data = rawData as Map<String, dynamic>;
+          } else if (rawData is String) {
+            final decoded = jsonDecode(rawData);
+            if (decoded is Map) {
+              data = decoded as Map<String, dynamic>;
+            }
+          }
+          if (data != null) {
+            serverMessage = data['message'] as String?;
+          }
+        }
+      } catch (_) {}
+
+      _errorMessage = serverMessage ?? 'Errore di connessione. Verifica i dati inseriti.';
     } catch (e) {
       _errorMessage = 'Si è verificato un errore imprevisto.';
     }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../services/api_service.dart';
 
 class UpdateCheckerWrapper extends StatefulWidget {
@@ -63,7 +64,8 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
     final playStoreUrl = updateData['play_store_url'] as String? ?? '';
     final appStoreUrl = updateData['app_store_url'] as String? ?? '';
 
-    const currentVersion = ApiService.appVersion;
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
 
     final hasUpdate = _compareVersion(currentVersion, latestVersion) < 0;
     final isMandatory = _compareVersion(currentVersion, minVersion) < 0;

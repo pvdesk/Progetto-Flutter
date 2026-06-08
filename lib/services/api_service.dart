@@ -55,8 +55,6 @@ class ApiService {
     await _initBaseUrl();
   }
 
-  static const String appVersion = '1.0.0';
-
   String get baseUrl => _baseUrl;
 
   String _normalizeUrl(String url) {
@@ -142,5 +140,13 @@ class ApiService {
       throw Exception('Impossibile contattare il server di configurazione. Controlla la tua connessione.');
     }
     return null; // Codice non trovato
+  }
+
+  Future<void> updateDeviceToken(String token) async {
+    try {
+      await dio.post('api/user/device-token', data: {'token': token});
+    } catch (e) {
+      debugPrint('Errore durante l\'aggiornamento del device token: $e');
+    }
   }
 }

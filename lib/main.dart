@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
@@ -9,8 +11,23 @@ import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
 import 'widgets/update_checker_wrapper.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inizializza Firebase
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Gestione messaggi in foreground
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // Qui puoi gestire eventuali notifiche in-app custom
+  });
+
   final apiService = ApiService();
   await apiService.init();
 
