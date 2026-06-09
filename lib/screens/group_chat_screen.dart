@@ -3,19 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
-import '../models/contact_model.dart';
-import '../models/message_model.dart';
+import '../models/room_model.dart';
+import '../models/group_chat_message_model.dart';
 
-class ChatScreen extends StatefulWidget {
-  final ContactModel contact;
+class GroupChatScreen extends StatefulWidget {
+  final RoomModel room;
 
-  const ChatScreen({super.key, required this.contact});
+  const GroupChatScreen({super.key, required this.room});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<GroupChatScreen> createState() => _GroupChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _GroupChatScreenState extends State<GroupChatScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -24,14 +24,13 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chatProvider = context.read<ChatProvider>();
-      chatProvider.startPolling(widget.contact);
+      chatProvider.startRoomPolling(widget.room);
     });
   }
 
   @override
   void dispose() {
-    // Rimuoviamo il polling e liberiamo le risorse
-    context.read<ChatProvider>().stopPolling();
+    context.read<ChatProvider>().stopRoomPolling();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -52,17 +51,15 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) return;
 
     _messageController.clear();
-    final success = await context.read<ChatProvider>().sendMessage(widget.contact.id, text);
+    final success = await context.read<ChatProvider>().sendRoomMessage(widget.room.id, text);
     
     if (success) {
-      // Piccolo delay per consentire la renderizzazione del widget
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     }
   }
 
   String _formatTime(DateTime? date) {
     if (date == null) return '';
-    // Converte in local timezone locale
     final localDate = date.toLocal();
     return DateFormat('HH:mm').format(localDate);
   }
@@ -72,13 +69,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final chatProvider = context.watch<ChatProvider>();
     final authProvider = context.watch<AuthProvider>();
     final currentUserId = authProvider.currentUser?.id;
-    final messages = chatProvider.messages;
+    final messages = chatProvider.roomMessages;
 
-    // Scroll automatico in fondo alla fine del frame se arrivano messaggi
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients && 
           _scrollController.position.pixels < _scrollController.position.maxScrollExtent - 100) {
-        // Se l'utente è vicino al fondo, scrolla automaticamente
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
@@ -96,12 +91,9 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: const Color(0xFF004E89),
+              backgroundColor: const Color(0xFF0075A2),
               radius: 18,
-              child: Text(
-                widget.contact.nome.isNotEmpty ? widget.contact.nome[0].toUpperCase() : 'C',
-                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-              ),
+              child: const Icon(Icons.group, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -109,13 +101,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.contact.nomeCompleto,
+                    widget.room.nome,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  Text(
-                    widget.contact.ruoloEtichetta,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
-                  ),
+                  if (widget.room.indirizzo != null)
+                    Text(
+                      widget.room.indirizzo!,
+                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
@@ -124,7 +119,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Area dei messaggi
           Expanded(
             child: chatProvider.isLoadingMessages && messages.isEmpty
                 ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor))
@@ -133,10 +127,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.chat_bubble_outline_rounded, color: Colors.white.withOpacity(0.2), size: 64),
+                            Icon(Icons.forum_rounded, color: Colors.white.withOpacity(0.2), size: 64),
                             const SizedBox(height: 16),
                             Text(
-                              'Inizia a chattare con ${widget.contact.nomeCompleto}',
+                              'Nessun messaggio in questa stanza.',
                               style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
                             ),
                           ],
@@ -147,7 +141,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
-                          final MessageModel message = messages[index];
+                          final GroupChatMessageModel message = messages[index];
                           final isMe = message.mittenteUserId == currentUserId;
 
                           return Align(
@@ -177,6 +171,18 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  if (!isMe)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 4.0),
+                                      child: Text(
+                                        message.mittenteNomeCompleto,
+                                        style: TextStyle(
+                                          color: Colors.amberAccent.withOpacity(0.9),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   Text(
                                     message.testo,
                                     style: const TextStyle(color: Colors.white, fontSize: 15),
@@ -193,14 +199,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                           fontSize: 10,
                                         ),
                                       ),
-                                      if (isMe) ...[
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.done_all,
-                                          color: message.isRead ? Colors.tealAccent : Colors.white24,
-                                          size: 13,
-                                        ),
-                                      ],
                                     ],
                                   ),
                                 ],
@@ -210,8 +208,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                       ),
           ),
-          
-          // Form di invio messaggio
           Container(
             padding: const EdgeInsets.only(left: 12, right: 12, bottom: 20, top: 8),
             color: const Color(0xFF1E293B),
@@ -230,7 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       textCapitalization: TextCapitalization.sentences,
                       maxLines: null,
                       decoration: const InputDecoration(
-                        hintText: 'Scrivi un messaggio...',
+                        hintText: 'Scrivi al gruppo...',
                         hintStyle: TextStyle(color: Colors.white30),
                         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         border: InputBorder.none,

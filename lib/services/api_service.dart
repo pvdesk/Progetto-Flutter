@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/io.dart';
@@ -18,7 +19,7 @@ class ApiService {
   static const String masterConfigUrl = 'https://www.inthegra.it/app_gestione/public/app_clients.json';
 
   late final Dio dio;
-  late final CookieJar cookieJar;
+  late final PersistCookieJar cookieJar;
   String _baseUrl = defaultBaseUrl;
 
   ApiService() {
@@ -26,9 +27,6 @@ class ApiService {
     
     // CookieManager non deve essere usato in ambienti Web perché i browser gestiscono i cookie nativamente.
     if (!kIsWeb) {
-      cookieJar = CookieJar();
-      dio.interceptors.add(CookieManager(cookieJar));
-      
       // FIX SSL CHAIN ISSUE: ignora gli errori del certificato su device fisici
       dio.httpClientAdapter = IOHttpClientAdapter(
         createHttpClient: () {
@@ -53,6 +51,22 @@ class ApiService {
 
   Future<void> init() async {
     await _initBaseUrl();
+    await _initCookieJar();
+  }
+
+  Future<void> _initCookieJar() async {
+    if (!kIsWeb) {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final String cookiePath = '${appDocDir.path}/.cookies/';
+      final dir = Directory(cookiePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      cookieJar = PersistCookieJar(
+        storage: FileStorage(cookiePath),
+      );
+      dio.interceptors.add(CookieManager(cookieJar));
+    }
   }
 
   String get baseUrl => _baseUrl;

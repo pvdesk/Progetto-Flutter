@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413659611904",
+    "project_id": "app-gestione-a544a",
+    "storage_bucket": "app-gestione-a544a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413659611904:android:7355956acf2f1909c4e9e5",
+        "android_client_info": {
+          "package_name": "com.connexia.ristorazione"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQbc5Qys96plFMa98GLNu0ieyqAMl7aB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -64,7 +64,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
             }
           },
           backgroundColor: const Color(0xFF1E293B),
-          selectedItemColor: const Color(0xFFFF6B35),
+          selectedItemColor: Theme.of(context).primaryColor,
           unselectedItemColor: Colors.white.withOpacity(0.4),
           selectedFontSize: 12,
           unselectedFontSize: 12,

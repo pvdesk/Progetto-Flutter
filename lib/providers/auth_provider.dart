@@ -48,9 +48,24 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _syncDeviceToken() async {
     try {
-      final token = await FirebaseMessaging.instance.getToken();
-      if (token != null) {
-        await apiService.updateDeviceToken(token);
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        final token = await FirebaseMessaging.instance.getToken();
+        if (token != null) {
+          await apiService.updateDeviceToken(token);
+        }
+      } else {
+        debugPrint('Permessi notifiche negati o non concessi.');
       }
     } catch (e) {
       debugPrint('Errore nel recupero del token FCM: $e');
@@ -223,6 +238,37 @@ class AuthProvider extends ChangeNotifier {
       }
     } on DioException catch (e) {
       _errorMessage = e.response?.data?['message'] ?? 'Errore durante l\'accettazione.';
+    } catch (_) {
+      _errorMessage = 'Errore di connessione.';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> deleteAccount() async {
+    if (!isAuthenticated) return false;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await apiService.dio.delete('api/user/account');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        await apiService.clearCookies();
+        await _clearPersistedUser();
+        _currentUser = null;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = data['message'] as String? ?? 'Impossibile eliminare l\'account.';
+      }
+    } on DioException catch (e) {
+      _errorMessage = e.response?.data?['message'] ?? 'Errore durante l\'eliminazione.';
     } catch (_) {
       _errorMessage = 'Errore di connessione.';
     }

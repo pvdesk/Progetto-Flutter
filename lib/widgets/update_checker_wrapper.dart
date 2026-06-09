@@ -40,9 +40,7 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
   Future<void> _launchUrl(String urlString) async {
     final Uri url = Uri.parse(urlString);
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      }
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (_) {
       // Ignora errori di apertura link
     }
@@ -78,9 +76,10 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
       context: context,
       barrierDismissible: !isMandatory,
       builder: (BuildContext context) {
-        final bool showAndroidApk = !kIsWeb && Platform.isAndroid && apkUrl.isNotEmpty;
         final bool showAndroidPlay = !kIsWeb && Platform.isAndroid && playStoreUrl.isNotEmpty && playStoreUrl != '#';
+        final bool showAndroidApk = !kIsWeb && Platform.isAndroid && apkUrl.isNotEmpty && !showAndroidPlay;
         final bool showIOSStore = !kIsWeb && Platform.isIOS && appStoreUrl.isNotEmpty && appStoreUrl != '#';
+        final bool isIOS = !kIsWeb && Platform.isIOS;
 
         return PopScope(
           canPop: !isMandatory,
@@ -169,7 +168,7 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
                 ),
 
               // Bottone di fallback se siamo su web o non ci sono URL specifici
-              if (kIsWeb || (!showAndroidApk && !showAndroidPlay && !showIOSStore))
+              if (kIsWeb || (!isIOS && !showAndroidApk && !showAndroidPlay && !showIOSStore))
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFF6B35),

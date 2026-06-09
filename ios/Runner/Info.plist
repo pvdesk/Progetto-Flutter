@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Connexia Ristorazione</string>
+	<string>INTHEGRA</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Connexia Ristorazione</string>
+	<string>INTHEGRA</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>L'App richiede l'accesso alla galleria per permetterti di inviare documenti o immagini nella chat aziendale.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>L'App richiede l'accesso alla fotocamera per scattare foto da allegare nella chat.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>L'App richiede l'accesso al microfono per registrare video o audio da inviare.</string>
 </dict>
 </plist>

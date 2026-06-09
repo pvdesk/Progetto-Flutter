@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../models/contact_model.dart';
+import '../models/room_model.dart';
 import 'chat_screen.dart';
+import 'group_chat_screen.dart';
+import 'profile_screen.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -12,20 +15,24 @@ class ContactsScreen extends StatefulWidget {
   State<ContactsScreen> createState() => _ContactsScreenState();
 }
 
-class _ContactsScreenState extends State<ContactsScreen> {
+class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatProvider>().fetchContacts();
+      context.read<ChatProvider>().fetchRooms();
     });
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -54,7 +61,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final chatProvider = context.watch<ChatProvider>();
     final currentUser = authProvider.currentUser;
 
-    // Filtra la lista dei contatti in base alla ricerca inserita dall'utente
+    // Filtra contatti
     final filteredContacts = chatProvider.contacts.where((contact) {
       final name = contact.nomeCompleto.toLowerCase();
       final email = contact.email.toLowerCase();
@@ -62,44 +69,46 @@ class _ContactsScreenState extends State<ContactsScreen> {
       return name.contains(query) || email.contains(query);
     }).toList();
 
+    // Filtra stanze
+    final filteredRooms = chatProvider.rooms.where((room) {
+      final name = room.nome.toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return name.contains(query);
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
         title: const Text(
-          'Rubrica Chat',
+          'Chat',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Theme.of(context).primaryColor,
+          labelColor: Theme.of(context).primaryColor,
+          unselectedLabelColor: Colors.white70,
+          tabs: const [
+            Tab(text: 'Private', icon: Icon(Icons.person)),
+            Tab(text: 'Punti Servizio', icon: Icon(Icons.group)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () => chatProvider.fetchContacts(),
+            onPressed: () {
+              chatProvider.fetchContacts();
+              chatProvider.fetchRooms();
+            },
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white70),
+            icon: const Icon(Icons.person_outline, color: Colors.white70),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: const Color(0xFF1E293B),
-                  title: const Text('Disconnessione', style: TextStyle(color: Colors.white)),
-                  content: const Text('Sei sicuro di voler uscire dall\'applicazione?', style: TextStyle(color: Colors.white70)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Annulla', style: TextStyle(color: Color(0xFFFF8C61))),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        authProvider.logout();
-                      },
-                      child: const Text('Esci', style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
             },
           ),
@@ -107,7 +116,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
       body: Column(
         children: [
-          // Header info utente loggato (Sleek card)
           if (currentUser != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -115,7 +123,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: const Color(0xFFFF6B35),
+                    backgroundColor: Theme.of(context).primaryColor,
                     radius: 24,
                     child: Text(
                       currentUser.nome.isNotEmpty ? currentUser.nome[0].toUpperCase() : 'U',
@@ -143,7 +151,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
               ),
             ),
 
-          // Campo di Ricerca Contatti
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -151,7 +158,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               onChanged: (val) => setState(() => _searchQuery = val),
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Cerca contatti...',
+                hintText: 'Cerca...',
                 hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
                 prefixIcon: const Icon(Icons.search, color: Color(0xFFFF8C61)),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -172,122 +179,222 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFFF6B35)),
+                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
                 ),
               ),
             ),
           ),
 
-          // Lista dei Contatti
           Expanded(
-            child: chatProvider.isLoadingContacts
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B35)))
-                : chatProvider.errorMessage != null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
-                              const SizedBox(height: 16),
-                              Text(
-                                chatProvider.errorMessage!,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.white70, fontSize: 16),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B35)),
-                                onPressed: () => chatProvider.fetchContacts(),
-                                child: const Text('Riprova', style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : filteredContacts.isEmpty
-                        ? Center(
-                            child: Text(
-                              _searchQuery.isEmpty ? 'Nessun contatto disponibile.' : 'Nessun contatto corrisponde alla ricerca.',
-                              style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
-                            ),
-                          )
-                        : RefreshIndicator(
-                            color: const Color(0xFFFF6B35),
-                            onRefresh: () => chatProvider.fetchContacts(),
-                            child: ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: filteredContacts.length,
-                              separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.04)),
-                              itemBuilder: (context, index) {
-                                final ContactModel contact = filteredContacts[index];
-                                final roleColor = _getRoleColor(contact.ruolo);
-
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ChatScreen(contact: contact),
-                                      ),
-                                    ).then((_) {
-                                      // Al rientro, rinfresca la rubrica per i messaggi letti
-                                      chatProvider.fetchContacts();
-                                    });
-                                  },
-                                  leading: Badge(
-                                    isLabelVisible: contact.unreadCount > 0,
-                                    label: Text(
-                                      contact.unreadCount.toString(),
-                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                    ),
-                                    backgroundColor: Colors.redAccent,
-                                    offset: const Offset(4, -4),
-                                    child: CircleAvatar(
-                                      backgroundColor: const Color(0xFF004E89),
-                                      radius: 22,
-                                      child: Text(
-                                        contact.nome.isNotEmpty ? contact.nome[0].toUpperCase() : 'C',
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    contact.nomeCompleto,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                                  ),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 4.0),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: roleColor.withOpacity(0.12),
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: roleColor.withOpacity(0.3), width: 0.5),
-                                          ),
-                                          child: Text(
-                                            contact.ruoloEtichetta,
-                                            style: TextStyle(color: roleColor, fontSize: 10, fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  trailing: const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: Colors.white24,
-                                    size: 14,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // TAB 1: PRIVATE
+                _buildPrivateTab(chatProvider, filteredContacts),
+                // TAB 2: PUBBLICHE (STANZE)
+                _buildRoomsTab(chatProvider, filteredRooms),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPrivateTab(ChatProvider chatProvider, List<ContactModel> filteredContacts) {
+    if (chatProvider.isLoadingContacts) {
+      return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+    }
+    if (chatProvider.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                chatProvider.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                onPressed: () => chatProvider.fetchContacts(),
+                child: const Text('Riprova', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (filteredContacts.isEmpty) {
+      return Center(
+        child: Text(
+          _searchQuery.isEmpty ? 'Nessun contatto disponibile.' : 'Nessun contatto corrisponde alla ricerca.',
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      color: Theme.of(context).primaryColor,
+      onRefresh: () => chatProvider.fetchContacts(),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: filteredContacts.length,
+        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.04)),
+        itemBuilder: (context, index) {
+          final ContactModel contact = filteredContacts[index];
+          final roleColor = _getRoleColor(contact.ruolo);
+
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(contact: contact),
+                ),
+              ).then((_) {
+                chatProvider.fetchContacts();
+              });
+            },
+            leading: Badge(
+              isLabelVisible: contact.unreadCount > 0,
+              label: Text(
+                contact.unreadCount.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+              backgroundColor: Colors.redAccent,
+              offset: const Offset(4, -4),
+              child: CircleAvatar(
+                backgroundColor: const Color(0xFF004E89),
+                radius: 22,
+                child: Text(
+                  contact.nome.isNotEmpty ? contact.nome[0].toUpperCase() : 'C',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            title: Text(
+              contact.nomeCompleto,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: roleColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: roleColor.withOpacity(0.3), width: 0.5),
+                    ),
+                    child: Text(
+                      contact.ruoloEtichetta,
+                      style: TextStyle(color: roleColor, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white24,
+              size: 14,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildRoomsTab(ChatProvider chatProvider, List<RoomModel> filteredRooms) {
+    if (chatProvider.isLoadingRooms) {
+      return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+    }
+    if (chatProvider.errorMessage != null && chatProvider.rooms.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Impossibile caricare le stanze',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                onPressed: () => chatProvider.fetchRooms(),
+                child: const Text('Riprova', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (filteredRooms.isEmpty) {
+      return Center(
+        child: Text(
+          _searchQuery.isEmpty ? 'Nessun punto servizio disponibile.' : 'Nessuna stanza corrisponde.',
+          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      color: Theme.of(context).primaryColor,
+      onRefresh: () => chatProvider.fetchRooms(),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: filteredRooms.length,
+        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.04)),
+        itemBuilder: (context, index) {
+          final RoomModel room = filteredRooms[index];
+
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GroupChatScreen(room: room),
+                ),
+              ).then((_) {
+                chatProvider.fetchRooms();
+              });
+            },
+            leading: CircleAvatar(
+              backgroundColor: const Color(0xFF0075A2),
+              radius: 22,
+              child: const Icon(Icons.group, color: Colors.white, size: 20),
+            ),
+            title: Text(
+              room.nome,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            subtitle: room.indirizzo != null
+              ? Text(
+                  room.indirizzo!,
+                  style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              : null,
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.white24,
+              size: 14,
+            ),
+          );
+        },
       ),
     );
   }

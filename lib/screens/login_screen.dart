@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -72,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<AuthProvider>().isLoading;
+    final themeProvider = context.watch<ThemeProvider>();
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       body: Container(
@@ -91,30 +94,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Logo / Icona Animata
                   Container(
-                    width: 90,
-                    height: 90,
+                    width: 200,
+                    height: 80,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.08),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.white24, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF6B35).withOpacity(0.3),
+                          color: primaryColor.withOpacity(0.3),
                           blurRadius: 20,
                           spreadRadius: 2,
                         )
                       ],
                     ),
-                    child: const Icon(
-                      Icons.chat_bubble_outline_rounded,
-                      size: 45,
-                      color: Color(0xFFFF8C61),
-                    ),
+                    child: themeProvider.logoUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.network(
+                                themeProvider.logoUrl!,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(Icons.business, size: 45, color: primaryColor),
+                              ),
+                            ),
+                          )
+                        : Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 45,
+                            color: primaryColor,
+                          ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Connexia Chat',
-                    style: TextStyle(
+                  Text(
+                    themeProvider.appName,
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -123,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Accedi per connetterti a app_gestione',
+                    'Accedi per connetterti al gestionale',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.6),
@@ -158,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               labelText: 'Codice Azienda',
                               labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                              prefixIcon: const Icon(Icons.business_center_outlined, color: Color(0xFFFF8C61)),
+                              prefixIcon: Icon(Icons.business_center_outlined, color: primaryColor),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.04),
                               enabledBorder: OutlineInputBorder(
@@ -167,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+                                borderSide: BorderSide(color: primaryColor, width: 1.5),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -193,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               labelText: 'Email',
                               labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                              prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFFF8C61)),
+                              prefixIcon: Icon(Icons.email_outlined, color: primaryColor),
                               filled: true,
                               fillColor: Colors.white.withOpacity(0.04),
                               enabledBorder: OutlineInputBorder(
@@ -202,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+                                borderSide: BorderSide(color: primaryColor, width: 1.5),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -229,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               labelText: 'Password',
                               labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                              prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFFFF8C61)),
+                              prefixIcon: Icon(Icons.lock_outline_rounded, color: primaryColor),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -247,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+                                borderSide: BorderSide(color: primaryColor, width: 1.5),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -266,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ElevatedButton(
                             onPressed: isLoading ? null : _submit,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF6B35),
+                              backgroundColor: primaryColor,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(

@@ -218,7 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: InputDecoration(
                           labelText: 'Password',
                           labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFFFF8C61)),
+                          prefixIcon: Icon(Icons.lock_outline_rounded, color: Theme.of(context).primaryColor),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -236,7 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+                            borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -259,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ElevatedButton(
                         onPressed: isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B35),
+                          backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -293,7 +293,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-      prefixIcon: Icon(icon, color: const Color(0xFFFF8C61)),
+      prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
       filled: true,
       fillColor: Colors.white.withOpacity(0.04),
       enabledBorder: OutlineInputBorder(
@@ -302,7 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFFFF6B35), width: 1.5),
+        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../models/contact_model.dart';
 import '../models/message_model.dart';
+import '../models/room_model.dart';
+import '../models/group_chat_message_model.dart';
 import '../services/api_service.dart';
 
 class ChatProvider extends ChangeNotifier {
@@ -10,21 +12,30 @@ class ChatProvider extends ChangeNotifier {
   
   List<ContactModel> _contacts = [];
   List<MessageModel> _messages = [];
+  List<RoomModel> _rooms = [];
+  List<GroupChatMessageModel> _roomMessages = [];
   int _unreadCount = 0;
   bool _isLoadingContacts = false;
   bool _isLoadingMessages = false;
+  bool _isLoadingRooms = false;
   String? _errorMessage;
   
   ContactModel? _activeContact;
+  RoomModel? _activeRoom;
   Timer? _pollingTimer;
+  Timer? _roomPollingTimer;
 
   List<ContactModel> get contacts => _contacts;
   List<MessageModel> get messages => _messages;
+  List<RoomModel> get rooms => _rooms;
+  List<GroupChatMessageModel> get roomMessages => _roomMessages;
   int get unreadCount => _unreadCount;
   bool get isLoadingContacts => _isLoadingContacts;
   bool get isLoadingMessages => _isLoadingMessages;
+  bool get isLoadingRooms => _isLoadingRooms;
   String? get errorMessage => _errorMessage;
   ContactModel? get activeContact => _activeContact;
+  RoomModel? get activeRoom => _activeRoom;
 
   ChatProvider(this.apiService);
 
@@ -57,6 +68,35 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Carica le stanze (Punti di Servizio) abilitate
+  Future<void> fetchRooms() async {
+    _isLoadingRooms = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await apiService.dio.get('api/chat/rooms');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final list = data['rooms'] as List<dynamic>;
+        _rooms = list.map((r) => RoomModel.fromJson(r as Map<String, dynamic>)).toList();
+      } else {
+        _errorMessage = data['message'] as String?;
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        _errorMessage = 'Privacy non accettata';
+      } else {
+        _errorMessage = 'Errore di rete durante il caricamento delle stanze.';
+      }
+    } catch (_) {
+      _errorMessage = 'Impossibile caricare le stanze.';
+    }
+
+    _isLoadingRooms = false;
+    notifyListeners();
+  }
+
   // Carica messaggi per un contatto specifico
   Future<void> fetchMessages(int contactId) async {
     _isLoadingMessages = true;
@@ -78,6 +118,32 @@ class ChatProvider extends ChangeNotifier {
       }
     } catch (_) {
       _errorMessage = 'Impossibile recuperare i messaggi.';
+    }
+
+    _isLoadingMessages = false;
+    notifyListeners();
+  }
+
+  // Carica messaggi per una stanza specifica
+  Future<void> fetchRoomMessages(int roomId) async {
+    _isLoadingMessages = true;
+    _errorMessage = null;
+    if (_activeRoom?.id != roomId) {
+      _roomMessages = [];
+    }
+    notifyListeners();
+
+    try {
+      final response = await apiService.dio.get('api/chat/rooms/$roomId/messages');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final list = data['messages'] as List<dynamic>;
+        _roomMessages = list.map((m) => GroupChatMessageModel.fromJson(m as Map<String, dynamic>)).toList();
+      } else {
+        _errorMessage = data['message'] as String?;
+      }
+    } catch (_) {
+      _errorMessage = 'Impossibile recuperare i messaggi del gruppo.';
     }
 
     _isLoadingMessages = false;
@@ -109,6 +175,30 @@ class ChatProvider extends ChangeNotifier {
     } catch (_) {
       // Gestisci errore invio
     }
+    return false;
+  }
+
+  // Invia un messaggio ad una stanza
+  Future<bool> sendRoomMessage(int roomId, String text) async {
+    if (text.trim().isEmpty) return false;
+
+    try {
+      final response = await apiService.dio.post(
+        'api/chat/rooms/messages',
+        data: {
+          'punto_servizio_id': roomId,
+          'testo': text,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final newMsg = GroupChatMessageModel.fromJson(data['message'] as Map<String, dynamic>);
+        _roomMessages.add(newMsg);
+        notifyListeners();
+        return true;
+      }
+    } catch (_) {}
     return false;
   }
 
@@ -152,16 +242,50 @@ class ChatProvider extends ChangeNotifier {
     });
   }
 
-  // Ferma polling
+  // Ferma polling chat singola
   void stopPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = null;
     _activeContact = null;
   }
 
+  // Inizia polling per aggiornare la stanza attiva in tempo reale
+  void startRoomPolling(RoomModel room) {
+    stopRoomPolling();
+    _activeRoom = room;
+    fetchRoomMessages(room.id);
+    
+    _roomPollingTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      if (_activeRoom != null) {
+        try {
+          final response = await apiService.dio.get('api/chat/rooms/${_activeRoom!.id}/messages');
+          final data = response.data as Map<String, dynamic>;
+          if (data['success'] == true) {
+            final list = data['messages'] as List<dynamic>;
+            final newMessages = list.map((m) => GroupChatMessageModel.fromJson(m as Map<String, dynamic>)).toList();
+            
+            if (newMessages.length != _roomMessages.length || 
+                (newMessages.isNotEmpty && _roomMessages.isNotEmpty && newMessages.last.id != _roomMessages.last.id)) {
+              _roomMessages = newMessages;
+              notifyListeners();
+            }
+          }
+        } catch (_) {}
+      }
+    });
+  }
+
+  // Ferma polling stanza
+  void stopRoomPolling() {
+    _roomPollingTimer?.cancel();
+    _roomPollingTimer = null;
+    _activeRoom = null;
+  }
+
   @override
   void dispose() {
     stopPolling();
+    stopRoomPolling();
     super.dispose();
   }
 }

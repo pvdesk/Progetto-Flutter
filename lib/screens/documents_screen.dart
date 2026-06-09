@@ -61,7 +61,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Scaricamento in corso: ${doc.nomeFile}...'),
-        backgroundColor: const Color(0xFFFF6B35),
+        backgroundColor: Theme.of(context).primaryColor,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -102,7 +102,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                 ),
                 actions: [
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B35)),
+                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
                     onPressed: () => Navigator.pop(context),
                     child: const Text('OK', style: TextStyle(color: Colors.white)),
                   ),
@@ -159,7 +159,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
           controller: _tabController,
           labelColor: const Color(0xFFFF8C61),
           unselectedLabelColor: Colors.white70,
-          indicatorColor: const Color(0xFFFF6B35),
+          indicatorColor: Theme.of(context).primaryColor,
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: [
             Tab(
@@ -211,7 +211,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
             scale: isSecondTab ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 200),
             child: FloatingActionButton(
-              backgroundColor: const Color(0xFFFF6B35),
+              backgroundColor: Theme.of(context).primaryColor,
               onPressed: () => _showUploadDialog(context),
               child: const Icon(Icons.add, color: Colors.white, size: 28),
             ),
@@ -225,7 +225,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     final documentProvider = context.watch<DocumentProvider>();
 
     if (documentProvider.isLoading && docs.isEmpty) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B35)));
+      return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     }
 
     if (docs.isEmpty) {
@@ -263,7 +263,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     }
 
     return RefreshIndicator(
-      color: const Color(0xFFFF6B35),
+      color: Theme.of(context).primaryColor,
       onRefresh: () => documentProvider.fetchDocuments(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -279,7 +279,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
                 color: isReceived && !doc.isRead
-                    ? const Color(0xFFFF6B35).withOpacity(0.4)
+                    ? Theme.of(context).primaryColor.withOpacity(0.4)
                     : Colors.white.withOpacity(0.05),
                 width: isReceived && !doc.isRead ? 1.5 : 1,
               ),
@@ -391,7 +391,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                         icon: const Icon(Icons.download_rounded, size: 16, color: Colors.white),
                         label: const Text('Scarica', style: TextStyle(fontSize: 12, color: Colors.white)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B35),
+                          backgroundColor: Theme.of(context).primaryColor,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         ),
@@ -613,7 +613,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                     color: Colors.white.withOpacity(0.02),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _selectedFile != null ? const Color(0xFFFF6B35) : Colors.white24,
+                      color: _selectedFile != null ? Theme.of(context).primaryColor : Colors.white24,
                       style: BorderStyle.solid,
                       width: _selectedFile != null ? 1.5 : 1,
                     ),
@@ -666,7 +666,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                   ElevatedButton(
                     onPressed: _isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF6B35),
+                      backgroundColor: Theme.of(context).primaryColor,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),

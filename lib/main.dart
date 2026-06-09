@@ -6,6 +6,7 @@ import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/document_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -35,6 +36,9 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<ApiService>.value(value: apiService),
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider(apiService),
+        ),
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider(apiService),
         ),
@@ -55,24 +59,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Connexia Chat',
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: const Color(0xFFFF6B35),
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF6B35),
-          secondary: Color(0xFFFF8C61),
-          surface: Color(0xFF1E293B),
-        ),
-        useMaterial3: true,
-      ),
-      home: const UpdateCheckerWrapper(
-        child: AuthGate(),
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: themeProvider.appName,
+          debugShowCheckedModeBanner: false,
+          themeMode: ThemeMode.dark,
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primaryColor: themeProvider.primaryColor,
+            scaffoldBackgroundColor: const Color(0xFF0F172A),
+            colorScheme: ColorScheme.dark(
+              primary: themeProvider.primaryColor,
+              secondary: themeProvider.secondaryColor,
+              surface: const Color(0xFF1E293B),
+            ),
+            useMaterial3: true,
+          ),
+          home: const UpdateCheckerWrapper(
+            child: AuthGate(),
+          ),
+        );
+      },
     );
   }
 }
