@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/config_provider.dart';
 import '../providers/chat_provider.dart';
 import '../models/contact_model.dart';
 import '../models/room_model.dart';
@@ -59,6 +60,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final chatProvider = context.watch<ChatProvider>();
+    final configProvider = context.watch<ConfigProvider>();
     final currentUser = authProvider.currentUser;
 
     // Filtra contatti
@@ -79,10 +81,23 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text(
-          'Chat',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: configProvider.internalLogoUrl != null
+            ? Image.network(
+                configProvider.internalLogoUrl!,
+                height: 36,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Image.asset(
+                  'assets/icon/logo_orizzontale.png',
+                  height: 36,
+                  fit: BoxFit.contain,
+                ),
+              )
+            : Image.asset(
+                'assets/icon/logo_orizzontale.png',
+                height: 36,
+                fit: BoxFit.contain,
+              ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
         bottom: TabBar(

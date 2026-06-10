@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../utils/web_utils.dart';
 
 import '../providers/document_provider.dart';
+import '../providers/config_provider.dart';
 import '../models/document_model.dart';
 import '../services/api_service.dart';
 
@@ -139,14 +140,28 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     final documentProvider = context.watch<DocumentProvider>();
+    final configProvider = context.watch<ConfigProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text(
-          'Area Documenti',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+        title: configProvider.internalLogoUrl != null
+            ? Image.network(
+                configProvider.internalLogoUrl!,
+                height: 36,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Image.asset(
+                  'assets/icon/logo_orizzontale.png',
+                  height: 36,
+                  fit: BoxFit.contain,
+                ),
+              )
+            : Image.asset(
+                'assets/icon/logo_orizzontale.png',
+                height: 36,
+                fit: BoxFit.contain,
+              ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
         actions: [

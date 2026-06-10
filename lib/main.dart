@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/config_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -36,6 +37,9 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<ApiService>.value(value: apiService),
+        ChangeNotifierProvider<ConfigProvider>(
+          create: (_) => ConfigProvider(apiService),
+        ),
         ChangeNotifierProvider<ThemeProvider>(
           create: (_) => ThemeProvider(apiService),
         ),
