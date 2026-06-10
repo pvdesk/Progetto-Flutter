@@ -13,21 +13,39 @@ import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
 import 'widgets/update_checker_wrapper.dart';
 
+// ── Handler background/terminated — richiamato da Google Play Services ────────
+// Funziona anche con app killata: FCM è gestito a livello OS
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  // Il messaggio è già mostrato dall'OS via il canale 'inthegra_channel'
 }
+
+// Navigatore globale per navigare da notifica tap senza BuildContext
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Inizializza Firebase
   await Firebase.initializeApp();
+
+  // Registra handler per messaggi quando app è in background o terminata
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Gestione messaggi in foreground
+  // Mostra notifiche anche con app in foreground (iOS + configura Android)
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  // Su Android: i messaggi FCM con payload "notification" vengono mostrati
+  // automaticamente dall'OS via il canale 'inthegra_channel' (AndroidManifest)
+  // anche con app killata — nessun plugin aggiuntivo necessario.
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Qui puoi gestire eventuali notifiche in-app custom
+    // Qui possiamo aggiornare badge o stato in-app se necessario
+    debugPrint('[FCM Foreground] ${message.notification?.title}');
   });
 
   final apiService = ApiService();
@@ -58,8 +76,52 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    _setupNotificationNavigation();
+  }
+
+  /// Gestisce la navigazione quando l'utente tocca una notifica FCM.
+  /// Funziona sia quando l'app è in background che terminata (cold start).
+  void _setupNotificationNavigation() {
+    // App in background → utente tocca la notifica
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+    // App terminata → utente tocca la notifica (cold start)
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        _handleNotificationTap(message);
+      }
+    });
+  }
+
+  void _handleNotificationTap(RemoteMessage message) {
+    final type = message.data['type'] ?? '';
+    // Naviga alla schermata giusta in base al tipo di notifica
+    if (type == 'chat' || type == 'chat_group') {
+      // Tab 0 = Contatti/Chat
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 0)),
+        (route) => false,
+      );
+    } else if (type == 'documento') {
+      // Tab 1 = Documenti
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 1)),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +130,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: themeProvider.appName,
           debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
           themeMode: ThemeMode.dark,
           darkTheme: ThemeData(
             brightness: Brightness.dark,
@@ -100,11 +163,12 @@ class AuthGate extends StatelessWidget {
     if (!authProvider.isAuthenticated) {
       return const LoginScreen();
     }
-    
+
     if (!authProvider.hasAcceptedPrivacy) {
       return const PrivacyScreen();
     }
-    
+
     return const MainShellScreen();
   }
 }
+

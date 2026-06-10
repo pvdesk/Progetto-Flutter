@@ -6,14 +6,15 @@ import 'contacts_screen.dart';
 import 'documents_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
-  const MainShellScreen({super.key});
+  final int initialTab;
+  const MainShellScreen({super.key, this.initialTab = 0});
 
   @override
   State<MainShellScreen> createState() => _MainShellScreenState();
 }
 
 class _MainShellScreenState extends State<MainShellScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   final List<Widget> _screens = const [
     ContactsScreen(),
@@ -23,6 +24,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.initialTab;
     // Eseguiamo il fetch iniziale dei contatori
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatProvider>().fetchUnreadCount();
