@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/document_provider.dart';
+import '../providers/notification_provider.dart';
 import 'contacts_screen.dart';
 import 'documents_screen.dart';
+import 'notifications_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   final int initialTab;
@@ -19,6 +21,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
   final List<Widget> _screens = const [
     ContactsScreen(),
     DocumentsScreen(),
+    NotificationsScreen(),
   ];
 
   @override
@@ -29,6 +32,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatProvider>().fetchUnreadCount();
       context.read<DocumentProvider>().fetchDocuments();
+      context.read<NotificationProvider>().fetchUnread();
     });
   }
 
@@ -36,6 +40,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final documentProvider = context.watch<DocumentProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
 
     return Scaffold(
       body: IndexedStack(
@@ -63,6 +68,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
               context.read<ChatProvider>().fetchUnreadCount();
             } else if (index == 1) {
               context.read<DocumentProvider>().fetchDocuments();
+            } else if (index == 2) {
+              context.read<NotificationProvider>().fetchUnread();
             }
           },
           backgroundColor: const Color(0xFF1E293B),
@@ -104,6 +111,23 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 ),
               ),
               label: 'Documenti',
+            ),
+
+            // Voce Notifiche
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Badge(
+                  isLabelVisible: notificationProvider.unreadCount > 0,
+                  label: Text(
+                    notificationProvider.unreadCount.toString(),
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                  backgroundColor: Colors.redAccent,
+                  child: const Icon(Icons.notifications_rounded),
+                ),
+              ),
+              label: 'Notifiche',
             ),
           ],
         ),

@@ -47,3 +47,5 @@ node_modules/
 
 # Environment variables
 .env
+FIREBASE_CREDENTIALS
+/android/build/

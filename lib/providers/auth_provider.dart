@@ -27,7 +27,13 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final userJson = prefs.getString('cached_user');
       if (userJson != null) {
-        _currentUser = UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+        final userMap = jsonDecode(userJson) as Map<String, dynamic>;
+        _currentUser = UserModel.fromJson(userMap);
+        // Ripristina il Bearer Token nell'ApiService
+        final savedToken = userMap['api_token'] as String?;
+        if (savedToken != null && savedToken.isNotEmpty) {
+          await apiService.setToken(savedToken);
+        }
         notifyListeners();
         _syncDeviceToken();
       }
@@ -101,7 +107,17 @@ class AuthProvider extends ChangeNotifier {
 
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final userMap = data['user'] as Map<String, dynamic>;
+        // Leggi il Bearer Token dalla risposta e salvalo in ApiService
+        final token = data['token'] as String?;
+        if (token != null && token.isNotEmpty) {
+          await apiService.setToken(token);
+        }
+
+        // Costruisci il modello utente (includi il token per la cache locale)
+        final userMap = Map<String, dynamic>.from(
+          data['user'] as Map<String, dynamic>,
+        );
+        if (token != null) userMap['api_token'] = token;
         _currentUser = UserModel.fromJson(userMap);
         await _persistUser(_currentUser!);
         _isLoading = false;
@@ -258,7 +274,7 @@ class AuthProvider extends ChangeNotifier {
       final response = await apiService.dio.delete('api/user/account');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        await apiService.clearCookies();
+        await apiService.clearSession();
         await _clearPersistedUser();
         _currentUser = null;
         _isLoading = false;
@@ -283,8 +299,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Rimuovi cookie e utente locale
-      await apiService.clearCookies();
+      // Cancella token Bearer e dati utente locali
+      await apiService.clearSession();
       await _clearPersistedUser();
       _currentUser = null;
     } catch (_) {}

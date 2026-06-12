@@ -5,7 +5,7 @@ import '../services/api_service.dart';
 class ThemeProvider extends ChangeNotifier {
   final ApiService _apiService;
 
-  String appName = 'Connexia Chat';
+  String appName = 'INTHEGRA';
   Color primaryColor = const Color(0xFFFF6B35);
   Color secondaryColor = const Color(0xFFFF8C61);
   Color headerBgColor = const Color(0xFF1E293B);

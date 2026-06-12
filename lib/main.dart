@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/document_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/config_provider.dart';
+import 'providers/notification_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -24,11 +27,36 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 // Navigatore globale per navigare da notifica tap senza BuildContext
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'inthegra_channel_v2',
+  'Notifiche InThegra',
+  description: 'Canale usato per le notifiche di InThegra.',
+  importance: Importance.max,
+  playSound: true,
+);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inizializza Firebase
   await Firebase.initializeApp();
+
+  // Inizializza Flutter Local Notifications e crea il canale per Android
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  const initializationSettingsAndroid = AndroidInitializationSettings('ic_stat_notification');
+  const initializationSettingsIOS = DarwinInitializationSettings();
+  const initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+  
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+    // Gestione opzionale del tap quando l'app è in foreground
+  });
 
   // Registra handler per messaggi quando app è in background o terminata
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -42,10 +70,38 @@ void main() async {
 
   // Su Android: i messaggi FCM con payload "notification" vengono mostrati
   // automaticamente dall'OS via il canale 'inthegra_channel' (AndroidManifest)
-  // anche con app killata — nessun plugin aggiuntivo necessario.
+  // quando l'app è in background. In foreground, mostriamo noi la notifica.
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Qui possiamo aggiornare badge o stato in-app se necessario
     debugPrint('[FCM Foreground] ${message.notification?.title}');
+    
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+    
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: 'ic_stat_notification',
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+          ),
+        ),
+      );
+    }
+    
+    // Aggiorniamo il badge sull'icona dell'app
+    AppBadgePlus.isSupported().then((isSupported) {
+      if (isSupported) {
+        AppBadgePlus.updateBadge(1);
+      }
+    });
   });
 
   final apiService = ApiService();
@@ -70,6 +126,9 @@ void main() async {
         ChangeNotifierProvider<DocumentProvider>(
           create: (_) => DocumentProvider(apiService),
         ),
+        ChangeNotifierProvider<NotificationProvider>(
+          create: (_) => NotificationProvider(apiService),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -89,6 +148,13 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _setupNotificationNavigation();
+    
+    // Rimuovi il badge quando l'app viene aperta
+    AppBadgePlus.isSupported().then((isSupported) {
+      if (isSupported) {
+        AppBadgePlus.updateBadge(0);
+      }
+    });
   }
 
   /// Gestisce la navigazione quando l'utente tocca una notifica FCM.
@@ -118,6 +184,12 @@ class _MyAppState extends State<MyApp> {
       // Tab 1 = Documenti
       navigatorKey.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 1)),
+        (route) => false,
+      );
+    } else if (type == 'comunicazione' || type == 'notifica') {
+      // Tab 2 = Notifiche
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 2)),
         (route) => false,
       );
     }

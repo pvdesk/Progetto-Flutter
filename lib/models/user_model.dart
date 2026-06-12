@@ -6,6 +6,8 @@ class UserModel {
   final String ruolo;
   final String ruoloEtichetta;
   final bool privacyAccettata;
+  final bool attivoChatEnabled;
+  final String? apiToken; // Bearer token per autenticazione API mobile
 
   UserModel({
     required this.id,
@@ -15,6 +17,8 @@ class UserModel {
     required this.ruolo,
     required this.ruoloEtichetta,
     required this.privacyAccettata,
+    this.attivoChatEnabled = true,
+    this.apiToken,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class UserModel {
       ruolo: json['ruolo'] as String? ?? 'operatore',
       ruoloEtichetta: json['ruolo_etichetta'] as String? ?? 'Operatore',
       privacyAccettata: json['privacy_accettata'] as bool? ?? false,
+      attivoChatEnabled: json['attivo_chat'] as bool? ?? true,
+      apiToken: json['api_token'] as String?,
     );
   }
 
@@ -38,6 +44,8 @@ class UserModel {
       'ruolo': ruolo,
       'ruolo_etichetta': ruoloEtichetta,
       'privacy_accettata': privacyAccettata,
+      'attivo_chat': attivoChatEnabled,
+      if (apiToken != null) 'api_token': apiToken,
     };
   }
 
@@ -49,6 +57,8 @@ class UserModel {
     String? ruolo,
     String? ruoloEtichetta,
     bool? privacyAccettata,
+    bool? attivoChatEnabled,
+    String? apiToken,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -58,6 +68,8 @@ class UserModel {
       ruolo: ruolo ?? this.ruolo,
       ruoloEtichetta: ruoloEtichetta ?? this.ruoloEtichetta,
       privacyAccettata: privacyAccettata ?? this.privacyAccettata,
+      attivoChatEnabled: attivoChatEnabled ?? this.attivoChatEnabled,
+      apiToken: apiToken ?? this.apiToken,
     );
   }
 
