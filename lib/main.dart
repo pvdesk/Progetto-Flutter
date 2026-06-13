@@ -91,6 +91,7 @@ void main() async {
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,
+            number: 1,
           ),
         ),
       );
