@@ -448,7 +448,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
 
   void _pickFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg'],
         withData: true, // Necessario per Flutter Web e comodo per i byte

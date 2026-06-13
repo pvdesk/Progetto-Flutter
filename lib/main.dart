@@ -53,10 +53,12 @@ void main() async {
   const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
   
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-    // Gestione opzionale del tap quando l'app è in foreground
-  });
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      // Gestione opzionale del tap quando l'app è in foreground
+    },
+  );
 
   // Registra handler per messaggi quando app è in background o terminata
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -80,9 +82,9 @@ void main() async {
     if (notification != null && android != null) {
       flutterLocalNotificationsPlugin.show(
         notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             channel.id,
             channel.name,
