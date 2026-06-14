@@ -29,7 +29,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'inthegra_channel_v2',
+  'inthegra_channel_v3',
   'Notifiche InThegra',
   description: 'Canale usato per le notifiche di InThegra.',
   importance: Importance.max,
