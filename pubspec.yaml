@@ -1,7 +1,7 @@
 name: progetto_flutter
 description: Un semplice progetto Flutter
 publish_to: "none"
-version: 1.1.6+9
+version: 1.1.7+10
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -39,4 +39,4 @@ flutter:
   assets:
     - assets/icon/logo.png
     - assets/icon/logo_orizzontale.png
-    - assets/icon/app_icon_square.png
+    - assets/icon/app_icon_square.png
