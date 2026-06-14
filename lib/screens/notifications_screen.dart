@@ -165,11 +165,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.campaign_outlined, color: Colors.white.withOpacity(0.15), size: 80),
+              Icon(Icons.campaign_outlined, color: Colors.white.withValues(alpha: 0.15), size: 80),
               const SizedBox(height: 16),
               Text(
                 'Nessuna comunicazione da leggere.',
-                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -191,7 +191,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.4), width: 1.5),
+              side: BorderSide(color: Theme.of(context).primaryColor.withValues(alpha: 0.4), width: 1.5),
             ),
             elevation: 4,
             child: InkWell(
@@ -208,9 +208,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.orange.withOpacity(0.4), width: 0.8),
+                            border: Border.all(color: Colors.orange.withValues(alpha: 0.4), width: 0.8),
                           ),
                           child: const Text(
                             'Nuovo',
@@ -219,7 +219,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                         ),
                         Text(
                           c.pubblicataAt ?? '',
-                          style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
                         ),
                       ],
                     ),
@@ -231,7 +231,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                     const SizedBox(height: 6),
                     Text(
                       c.testo,
-                      style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -257,11 +257,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.event_available, color: Colors.white.withOpacity(0.15), size: 80),
+              Icon(Icons.event_available, color: Colors.white.withValues(alpha: 0.15), size: 80),
               const SizedBox(height: 16),
               Text(
                 'Nessuna scadenza imminente.',
-                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -283,7 +283,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.redAccent.withOpacity(0.4), width: 1.5),
+              side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.4), width: 1.5),
             ),
             elevation: 4,
             child: Padding(
@@ -297,9 +297,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.1),
+                          color: Colors.redAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.redAccent.withOpacity(0.4), width: 0.8),
+                          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4), width: 0.8),
                         ),
                         child: const Text(
                           'Scadenza',
@@ -308,7 +308,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
                       ),
                       Text(
                         n.createdAt ?? '',
-                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
                       ),
                     ],
                   ),

@@ -114,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   Text(
                     widget.contact.ruoloEtichetta,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11),
                   ),
                 ],
               ),
@@ -133,11 +133,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.chat_bubble_outline_rounded, color: Colors.white.withOpacity(0.2), size: 64),
+                            Icon(Icons.chat_bubble_outline_rounded, color: Colors.white.withValues(alpha: 0.2), size: 64),
                             const SizedBox(height: 16),
                             Text(
                               'Inizia a chattare con ${widget.contact.nomeCompleto}',
-                              style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14),
                             ),
                           ],
                         ),
@@ -189,7 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       Text(
                                         _formatTime(message.createdAt),
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.55),
+                                          color: Colors.white.withValues(alpha: 0.55),
                                           fontSize: 10,
                                         ),
                                       ),
@@ -220,9 +220,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.04),
+                      color: Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.08)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                     ),
                     child: TextField(
                       controller: _messageController,

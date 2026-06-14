@@ -115,12 +115,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(28.0),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.06),
+                    color: Colors.white.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.12)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -134,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -217,22 +217,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                          labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                           prefixIcon: Icon(Icons.lock_outline_rounded, color: Theme.of(context).primaryColor),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                             onPressed: () {
                               setState(() => _obscurePassword = !_obscurePassword);
                             },
                           ),
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.04),
+                          fillColor: Colors.white.withValues(alpha: 0.04),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -292,13 +292,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   InputDecoration _buildInputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
       prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.04),
+      fillColor: Colors.white.withValues(alpha: 0.04),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

@@ -157,7 +157,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                         const SizedBox(height: 2),
                         Text(
                           currentUser.ruoloEtichetta,
-                          style: TextStyle(color: Colors.white.withOpacity(0.55), fontSize: 12),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 12),
                         ),
                       ],
                     ),
@@ -174,7 +174,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Cerca...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
                 prefixIcon: const Icon(Icons.search, color: Color(0xFFFF8C61)),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -190,7 +190,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -249,7 +249,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
       return Center(
         child: Text(
           _searchQuery.isEmpty ? 'Nessun contatto disponibile.' : 'Nessun contatto corrisponde alla ricerca.',
-          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
         ),
       );
     }
@@ -259,7 +259,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: filteredContacts.length,
-        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.04)),
+        separatorBuilder: (context, index) => Divider(color: Colors.white.withValues(alpha: 0.04)),
         itemBuilder: (context, index) {
           final ContactModel contact = filteredContacts[index];
           final roleColor = _getRoleColor(contact.ruolo);
@@ -304,9 +304,9 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: roleColor.withOpacity(0.12),
+                      color: roleColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: roleColor.withOpacity(0.3), width: 0.5),
+                      border: Border.all(color: roleColor.withValues(alpha: 0.3), width: 0.5),
                     ),
                     child: Text(
                       contact.ruoloEtichetta,
@@ -360,7 +360,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
       return Center(
         child: Text(
           _searchQuery.isEmpty ? 'Nessun punto servizio disponibile.' : 'Nessuna stanza corrisponde.',
-          style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 15),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
         ),
       );
     }
@@ -370,7 +370,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: filteredRooms.length,
-        separatorBuilder: (context, index) => Divider(color: Colors.white.withOpacity(0.04)),
+        separatorBuilder: (context, index) => Divider(color: Colors.white.withValues(alpha: 0.04)),
         itemBuilder: (context, index) {
           final RoomModel room = filteredRooms[index];
 
@@ -398,7 +398,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
             subtitle: room.indirizzo != null
               ? Text(
                   room.indirizzo!,
-                  style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 )

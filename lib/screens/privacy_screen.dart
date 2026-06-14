@@ -31,7 +31,7 @@ class PrivacyScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
+                      color: Colors.white.withValues(alpha: 0.06),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white24),
                     ),
@@ -59,7 +59,7 @@ class PrivacyScreen extends StatelessWidget {
                     'È richiesta l\'accettazione per accedere alla chat.',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -70,9 +70,9 @@ class PrivacyScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                     ),
                     child: Scrollbar(
                       thumbVisibility: true,
@@ -92,7 +92,7 @@ class PrivacyScreen extends StatelessWidget {
                           'In conformità con il Regolamento UE 2016/679 (GDPR), hai il diritto in qualsiasi momento di richiedere l\'accesso ai tuoi dati, la rettifica, la cancellazione o la limitazione del trattamento rivolgendoti all\'amministrazione.\n\n'
                           'Accettando i presenti termini, acconsenti espressamente al trattamento dei dati relativi all\'utilizzo della chat aziendale.',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             fontSize: 14,
                             height: 1.5,
                           ),
@@ -144,7 +144,7 @@ class PrivacyScreen extends StatelessWidget {
                   onPressed: isLoading ? null : () => authProvider.logout(),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white70,
-                    side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),

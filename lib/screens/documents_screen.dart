@@ -252,7 +252,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
             children: [
               Icon(
                 isReceived ? Icons.folder_open_rounded : Icons.cloud_upload_outlined,
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 size: 80,
               ),
               const SizedBox(height: 16),
@@ -260,7 +260,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                 isReceived 
                   ? 'Nessun documento ricevuto dall\'azienda.' 
                   : 'Nessun documento inviato all\'azienda.',
-                style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -268,7 +268,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                 isReceived
                   ? 'I documenti caricati dall\'amministrazione compariranno qui.'
                   : 'Puoi caricare certificati medici o altri file cliccando il tasto + in basso.',
-                style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -294,8 +294,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
                 color: isReceived && !doc.isRead
-                    ? Theme.of(context).primaryColor.withOpacity(0.4)
-                    : Colors.white.withOpacity(0.05),
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.4)
+                    : Colors.white.withValues(alpha: 0.05),
                 width: isReceived && !doc.isRead ? 1.5 : 1,
               ),
             ),
@@ -312,9 +312,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: typeColor.withOpacity(0.1),
+                          color: typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: typeColor.withOpacity(0.4), width: 0.8),
+                          border: Border.all(color: typeColor.withValues(alpha: 0.4), width: 0.8),
                         ),
                         child: Text(
                           doc.tipoEtichetta,
@@ -325,7 +325,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                       // Data
                       Text(
                         _formatDate(doc.createdAt),
-                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
                       ),
                     ],
                   ),
@@ -339,7 +339,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                     const SizedBox(height: 6),
                     Text(
                       doc.descrizione,
-                      style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
                     ),
                   ],
                   const SizedBox(height: 14),
@@ -567,7 +567,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                   labelText: 'Titolo Documento',
                   labelStyle: const TextStyle(color: Colors.white70),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.04),
+                  fillColor: Colors.white.withValues(alpha: 0.04),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'Inserisci un titolo' : null,
@@ -583,7 +583,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                   labelText: 'Tipo di Documento',
                   labelStyle: const TextStyle(color: Colors.white70),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.04),
+                  fillColor: Colors.white.withValues(alpha: 0.04),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 items: const [
@@ -613,7 +613,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                   labelText: 'Note aggiuntive (Opzionale)',
                   labelStyle: const TextStyle(color: Colors.white70),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.04),
+                  fillColor: Colors.white.withValues(alpha: 0.04),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -625,7 +625,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.02),
+                    color: Colors.white.withValues(alpha: 0.02),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: _selectedFile != null ? Theme.of(context).primaryColor : Colors.white24,

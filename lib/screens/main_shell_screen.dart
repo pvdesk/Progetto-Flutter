@@ -51,7 +51,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: Colors.white.withOpacity(0.06),
+              color: Colors.white.withValues(alpha: 0.06),
               width: 1,
             ),
           ),
@@ -74,7 +74,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
           },
           backgroundColor: const Color(0xFF1E293B),
           selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.white.withOpacity(0.4),
+          unselectedItemColor: Colors.white.withValues(alpha: 0.4),
           selectedFontSize: 12,
           unselectedFontSize: 12,
           type: BottomNavigationBarType.fixed,

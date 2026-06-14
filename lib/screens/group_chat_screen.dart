@@ -107,7 +107,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   if (widget.room.indirizzo != null)
                     Text(
                       widget.room.indirizzo!,
-                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -127,11 +127,11 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.forum_rounded, color: Colors.white.withOpacity(0.2), size: 64),
+                            Icon(Icons.forum_rounded, color: Colors.white.withValues(alpha: 0.2), size: 64),
                             const SizedBox(height: 16),
                             Text(
                               'Nessun messaggio in questa stanza.',
-                              style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14),
                             ),
                           ],
                         ),
@@ -177,7 +177,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                       child: Text(
                                         message.mittenteNomeCompleto,
                                         style: TextStyle(
-                                          color: Colors.amberAccent.withOpacity(0.9),
+                                          color: Colors.amberAccent.withValues(alpha: 0.9),
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -195,7 +195,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                                       Text(
                                         _formatTime(message.createdAt),
                                         style: TextStyle(
-                                          color: Colors.white.withOpacity(0.55),
+                                          color: Colors.white.withValues(alpha: 0.55),
                                           fontSize: 10,
                                         ),
                                       ),
@@ -216,9 +216,9 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.04),
+                      color: Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.08)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                     ),
                     child: TextField(
                       controller: _messageController,

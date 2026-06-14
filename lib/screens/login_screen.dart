@@ -97,12 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 200,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.white24, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.3),
+                          color: primaryColor.withValues(alpha: 0.3),
                           blurRadius: 20,
                           spreadRadius: 2,
                         )
@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Accedi per connetterti al gestionale',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -151,12 +151,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(28.0),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
+                      color: Colors.white.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.12)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -173,13 +173,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               labelText: 'Codice Azienda',
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                               prefixIcon: Icon(Icons.business_center_outlined, color: primaryColor),
                               filled: true,
-                              fillColor: Colors.white.withOpacity(0.04),
+                              fillColor: Colors.white.withValues(alpha: 0.04),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -208,13 +208,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                               prefixIcon: Icon(Icons.email_outlined, color: primaryColor),
                               filled: true,
-                              fillColor: Colors.white.withOpacity(0.04),
+                              fillColor: Colors.white.withValues(alpha: 0.04),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -244,22 +244,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                               prefixIcon: Icon(Icons.lock_outline_rounded, color: primaryColor),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: Colors.white.withValues(alpha: 0.6),
                                 ),
                                 onPressed: () {
                                   setState(() => _obscurePassword = !_obscurePassword);
                                 },
                               ),
                               filled: true,
-                              fillColor: Colors.white.withOpacity(0.04),
+                              fillColor: Colors.white.withValues(alpha: 0.04),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -318,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       'Non hai un account? Registrati',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 16,
                       ),
                     ),

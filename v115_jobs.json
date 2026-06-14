@@ -1,0 +1,161 @@
+﻿{
+    "total_count":  1,
+    "jobs":  [
+                 {
+                     "id":  81214452596,
+                     "run_id":  27475698127,
+                     "workflow_name":  "Build \u0026 Release APK",
+                     "head_branch":  "v1.1.5",
+                     "run_url":  "https://api.github.com/repos/pvdesk/Progetto-Flutter/actions/runs/27475698127",
+                     "run_attempt":  1,
+                     "node_id":  "CR_kwDOPm85Sc8AAAAS6MIzdA",
+                     "head_sha":  "2b5b0ddf60a91c328ae494febf017fdb585a7586",
+                     "url":  "https://api.github.com/repos/pvdesk/Progetto-Flutter/actions/jobs/81214452596",
+                     "html_url":  "https://github.com/pvdesk/Progetto-Flutter/actions/runs/27475698127/job/81214452596",
+                     "status":  "completed",
+                     "conclusion":  "failure",
+                     "created_at":  "2026-06-13T18:44:15Z",
+                     "started_at":  "2026-06-13T18:44:17Z",
+                     "completed_at":  "2026-06-13T18:49:15Z",
+                     "name":  "Build Release APK",
+                     "steps":  [
+                                   {
+                                       "name":  "Set up job",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  1,
+                                       "started_at":  "2026-06-13T18:44:17Z",
+                                       "completed_at":  "2026-06-13T18:44:20Z"
+                                   },
+                                   {
+                                       "name":  "Checkout repository",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  2,
+                                       "started_at":  "2026-06-13T18:44:20Z",
+                                       "completed_at":  "2026-06-13T18:44:21Z"
+                                   },
+                                   {
+                                       "name":  "Setup Java 17",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  3,
+                                       "started_at":  "2026-06-13T18:44:21Z",
+                                       "completed_at":  "2026-06-13T18:44:21Z"
+                                   },
+                                   {
+                                       "name":  "Setup Flutter",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  4,
+                                       "started_at":  "2026-06-13T18:44:21Z",
+                                       "completed_at":  "2026-06-13T18:45:20Z"
+                                   },
+                                   {
+                                       "name":  "Restore google-services.json",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  5,
+                                       "started_at":  "2026-06-13T18:45:20Z",
+                                       "completed_at":  "2026-06-13T18:45:20Z"
+                                   },
+                                   {
+                                       "name":  "Restore keystore",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  6,
+                                       "started_at":  "2026-06-13T18:45:20Z",
+                                       "completed_at":  "2026-06-13T18:45:20Z"
+                                   },
+                                   {
+                                       "name":  "Create key.properties",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  7,
+                                       "started_at":  "2026-06-13T18:45:20Z",
+                                       "completed_at":  "2026-06-13T18:45:21Z"
+                                   },
+                                   {
+                                       "name":  "Flutter pub get",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  8,
+                                       "started_at":  "2026-06-13T18:45:21Z",
+                                       "completed_at":  "2026-06-13T18:45:34Z"
+                                   },
+                                   {
+                                       "name":  "Build release APK",
+                                       "status":  "completed",
+                                       "conclusion":  "failure",
+                                       "number":  9,
+                                       "started_at":  "2026-06-13T18:45:34Z",
+                                       "completed_at":  "2026-06-13T18:49:13Z"
+                                   },
+                                   {
+                                       "name":  "Rename APKs",
+                                       "status":  "completed",
+                                       "conclusion":  "skipped",
+                                       "number":  10,
+                                       "started_at":  "2026-06-13T18:49:13Z",
+                                       "completed_at":  "2026-06-13T18:49:13Z"
+                                   },
+                                   {
+                                       "name":  "Upload APK as artifact",
+                                       "status":  "completed",
+                                       "conclusion":  "skipped",
+                                       "number":  11,
+                                       "started_at":  "2026-06-13T18:49:13Z",
+                                       "completed_at":  "2026-06-13T18:49:13Z"
+                                   },
+                                   {
+                                       "name":  "Create GitHub Release",
+                                       "status":  "completed",
+                                       "conclusion":  "skipped",
+                                       "number":  12,
+                                       "started_at":  "2026-06-13T18:49:13Z",
+                                       "completed_at":  "2026-06-13T18:49:13Z"
+                                   },
+                                   {
+                                       "name":  "Post Setup Flutter",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  22,
+                                       "started_at":  "2026-06-13T18:49:13Z",
+                                       "completed_at":  "2026-06-13T18:49:14Z"
+                                   },
+                                   {
+                                       "name":  "Post Setup Java 17",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  23,
+                                       "started_at":  "2026-06-13T18:49:14Z",
+                                       "completed_at":  "2026-06-13T18:49:14Z"
+                                   },
+                                   {
+                                       "name":  "Post Checkout repository",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  24,
+                                       "started_at":  "2026-06-13T18:49:14Z",
+                                       "completed_at":  "2026-06-13T18:49:14Z"
+                                   },
+                                   {
+                                       "name":  "Complete job",
+                                       "status":  "completed",
+                                       "conclusion":  "success",
+                                       "number":  25,
+                                       "started_at":  "2026-06-13T18:49:14Z",
+                                       "completed_at":  "2026-06-13T18:49:14Z"
+                                   }
+                               ],
+                     "check_run_url":  "https://api.github.com/repos/pvdesk/Progetto-Flutter/check-runs/81214452596",
+                     "labels":  [
+                                    "ubuntu-latest"
+                                ],
+                     "runner_id":  1000000008,
+                     "runner_name":  "GitHub Actions 1000000008",
+                     "runner_group_id":  0,
+                     "runner_group_name":  "GitHub Actions"
+                 }
+             ]
+}

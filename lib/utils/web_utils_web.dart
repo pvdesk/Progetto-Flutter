@@ -1,5 +1,8 @@
-import 'dart:js' as js;
+import 'dart:js_interop';
+
+@JS('window.open')
+external void _windowOpen(JSString url, JSString target);
 
 void openUrlInNewTab(String url) {
-  js.context.callMethod('open', [url, '_blank']);
+  _windowOpen(url.toJS, '_blank'.toJS);
 }

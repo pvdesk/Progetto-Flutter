@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/theme_provider.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -56,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
                         Text(
                           user.email,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 16,
                           ),
                         ),
@@ -82,7 +81,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                      side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

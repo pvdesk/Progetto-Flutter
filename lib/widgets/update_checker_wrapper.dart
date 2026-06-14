@@ -115,7 +115,7 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
                   isMandatory
                       ? 'Per continuare a utilizzare l\'applicazione è necessario effettuare l\'aggiornamento.'
                       : 'Ti consigliamo di aggiornare l\'applicazione per beneficiare delle ultime funzionalità e correzioni.',
-                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
                 ),
               ],
             ),
@@ -127,7 +127,7 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     'Più tardi',
-                    style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   ),
                 ),
               
