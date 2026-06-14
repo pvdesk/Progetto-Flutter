@@ -1,0 +1,53 @@
+name: Build & Release iOS
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'          # Triggera su tag tipo v1.0.0, v1.2.3
+  workflow_dispatch:      # Permette lancio manuale dalla UI di GitHub
+
+jobs:
+  build:
+    name: Build Release iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # Installazione dei Pod (dipendenze native iOS)
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+
+      # Compilazione dell'app senza firma
+      - name: Build iOS (No Codesign)
+        run: flutter build ios --release --no-codesign
+
+      # Compressione del pacchetto .app per poterlo scaricare come artefatto
+      - name: Zip iOS App
+        run: |
+          cd build/ios/iphoneos
+          zip -r iOS-App-Unsigned-${{ github.ref_name }}.zip Runner.app
+
+      - name: Upload iOS App come Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ios-${{ github.ref_name }}
+          path: build/ios/iphoneos/iOS-App-Unsigned-*.zip
+          retention-days: 30
+
+      # Nota: per caricare l'app su TestFlight o App Store, non basta questo file zippato.
+      # È necessario configurare il codesign con i certificati Apple e i file di provisioning.
+      # Questo workflow serve principalmente per certificare che il codice compila perfettamente su iOS.
