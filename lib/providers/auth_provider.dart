@@ -70,6 +70,11 @@ class AuthProvider extends ChangeNotifier {
         if (token != null) {
           await apiService.updateDeviceToken(token);
         }
+
+        // Ascolta futuri refresh del token FCM (es. reinstall, update, clear data)
+        FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+          apiService.updateDeviceToken(newToken);
+        });
       } else {
         debugPrint('Permessi notifiche negati o non concessi.');
       }

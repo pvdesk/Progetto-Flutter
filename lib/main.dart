@@ -21,7 +21,7 @@ import 'widgets/update_checker_wrapper.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // Il messaggio è già mostrato dall'OS via il canale 'inthegra_channel'
+  // Il messaggio è già mostrato dall'OS via il canale 'inthegra_channel_v3'
 }
 
 // Navigatore globale per navigare da notifica tap senza BuildContext
@@ -48,13 +48,19 @@ void main() async {
           AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
+  // Richiedi permesso notifiche su Android 13+ (API 33)
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
+
   const initializationSettingsAndroid = AndroidInitializationSettings('ic_stat_notification');
   const initializationSettingsIOS = DarwinInitializationSettings();
   const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
   
   await flutterLocalNotificationsPlugin.initialize(
-    settings: initializationSettings,
+    initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) {
       // Gestione opzionale del tap quando l'app è in foreground
     },
@@ -71,7 +77,7 @@ void main() async {
   );
 
   // Su Android: i messaggi FCM con payload "notification" vengono mostrati
-  // automaticamente dall'OS via il canale 'inthegra_channel' (AndroidManifest)
+  // automaticamente dall'OS via il canale 'inthegra_channel_v3' (AndroidManifest)
   // quando l'app è in background. In foreground, mostriamo noi la notifica.
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     debugPrint('[FCM Foreground] ${message.notification?.title}');
@@ -81,10 +87,10 @@ void main() async {
     
     if (notification != null && android != null) {
       flutterLocalNotificationsPlugin.show(
-        id: notification.hashCode,
-        title: notification.title,
-        body: notification.body,
-        notificationDetails: NotificationDetails(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
           android: AndroidNotificationDetails(
             channel.id,
             channel.name,

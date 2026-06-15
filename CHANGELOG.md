@@ -5,6 +5,22 @@ Formato: [Semantic Versioning](https://semver.org/). Data: YYYY-MM-DD.
 
 ---
 
+## [1.1.11] — 2026-06-15
+
+### Bug Fix — Notifiche Push
+- **CRITICO:** `flutterLocalNotificationsPlugin.initialize()` chiamato con parametro `settings:` (named) invece che posizionale — causava fallimento silenzioso dell'inizializzazione
+- **CRITICO:** `flutterLocalNotificationsPlugin.show()` chiamato con parametri named (`id:`, `title:`, `body:`, `notificationDetails:`) invece che posizionali — impediva la visualizzazione delle notifiche in foreground
+- **IMPORTANTE:** Aggiunto `onTokenRefresh` listener per mantenere il token FCM sincronizzato con il backend quando viene rigenerato (update app, reinstall, clear data)
+- **IMPORTANTE:** Aggiunta richiesta permesso notifiche runtime per Android 13+ (API 33)
+
+### Modificato
+- `main.dart` — corretti parametri `initialize()` e `show()`, aggiunto `requestNotificationsPermission()`
+- `auth_provider.dart` — aggiunto `FirebaseMessaging.instance.onTokenRefresh.listen()`
+- Aggiornati commenti con nome canale corretto `inthegra_channel_v3`
+- `pubspec.yaml` — versione bumped a 1.1.11+14
+
+---
+
 ## [1.1.0] — 2026-06-10
 
 ### 🔴 Breaking Change — Migrazione Autenticazione
