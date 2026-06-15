@@ -60,7 +60,7 @@ void main() async {
       android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
   
   await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
+    settings: initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse response) {
       // Gestione opzionale del tap quando l'app è in foreground
     },
@@ -87,10 +87,10 @@ void main() async {
     
     if (notification != null && android != null) {
       flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
+        id: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             channel.id,
             channel.name,
