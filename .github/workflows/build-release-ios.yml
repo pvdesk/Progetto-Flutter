@@ -25,6 +25,12 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      # Configurazione Podfile per iOS 15.0 (richiesto dalle nuove versioni di Firebase)
+      - name: Configure iOS Deployment Target
+        run: |
+          cd ios
+          sed -i '' 's/^# platform :ios, .*/platform :ios, '"'"'15.0'"'"'/' Podfile
+
       # Installazione dei Pod (dipendenze native iOS)
       - name: Install CocoaPods
         run: |
