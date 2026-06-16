@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:app_badge_plus/app_badge_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
@@ -29,11 +30,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'inthegra_channel_v3',
+  'inthegra_channel_v4',
   'Notifiche InThegra',
   description: 'Canale usato per le notifiche di InThegra.',
   importance: Importance.max,
   playSound: true,
+  enableVibration: true,
+  enableLights: true,
 );
 
 void main() async {
@@ -41,6 +44,11 @@ void main() async {
 
   // Inizializza Firebase
   await Firebase.initializeApp();
+
+  // Richiedi l'ignoramento dell'ottimizzazione della batteria per non far killare l'app
+  if (await Permission.ignoreBatteryOptimizations.isDenied) {
+    await Permission.ignoreBatteryOptimizations.request();
+  }
 
   // Inizializza Flutter Local Notifications e crea il canale per Android
   await flutterLocalNotificationsPlugin
