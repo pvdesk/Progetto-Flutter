@@ -68,7 +68,12 @@ class AuthProvider extends ChangeNotifier {
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         final token = await FirebaseMessaging.instance.getToken();
         if (token != null) {
+          // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
+          debugPrint('=== DEBUG NOTIFICHE: TOKEN OTTENUTO DA FIREBASE ===');
           await apiService.updateDeviceToken(token);
+        } else {
+          // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
+          debugPrint('=== DEBUG NOTIFICHE: FIREBASE HA RESTITUITO UN TOKEN NULL! ===');
         }
 
         // Ascolta futuri refresh del token FCM (es. reinstall, update, clear data)
@@ -80,6 +85,11 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Errore nel recupero del token FCM: $e');
+      // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
+      debugPrint('===========================================================');
+      debugPrint('=== DEBUG NOTIFICHE: ERRORE CRITICO FIREBASE MESSAGING ===');
+      debugPrint('Dettaglio: $e');
+      debugPrint('===========================================================');
     }
   }
 
