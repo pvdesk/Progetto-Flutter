@@ -22,7 +22,7 @@ import 'widgets/update_checker_wrapper.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // Il messaggio è già mostrato dall'OS via il canale 'inthegra_channel_v3'
+  // Il messaggio è già mostrato dall'OS via il canale 'inthegra_channel_v4'
 }
 
 // Navigatore globale per navigare da notifica tap senza BuildContext
@@ -85,7 +85,7 @@ void main() async {
   );
 
   // Su Android: i messaggi FCM con payload "notification" vengono mostrati
-  // automaticamente dall'OS via il canale 'inthegra_channel_v3' (AndroidManifest)
+  // automaticamente dall'OS via il canale 'inthegra_channel_v4' (AndroidManifest)
   // quando l'app è in background. In foreground, mostriamo noi la notifica.
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     debugPrint('[FCM Foreground] ${message.notification?.title}');
@@ -107,6 +107,7 @@ void main() async {
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,
+            enableVibration: true,
             number: 1,
           ),
         ),
