@@ -32,6 +32,10 @@ class FerieService {
         },
       );
       return response.data;
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      final detail = (body is Map) ? (body['detail'] ?? body['error']) : null;
+      throw Exception('Errore: ${detail ?? e.message}');
     } catch (e) {
       throw Exception('Errore durante la richiesta ferie: $e');
     }
