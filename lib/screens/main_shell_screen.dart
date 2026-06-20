@@ -6,6 +6,7 @@ import '../providers/notification_provider.dart';
 import 'contacts_screen.dart';
 import 'documents_screen.dart';
 import 'notifications_screen.dart';
+import 'ferie_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   final int initialTab;
@@ -18,10 +19,11 @@ class MainShellScreen extends StatefulWidget {
 class _MainShellScreenState extends State<MainShellScreen> {
   late int _currentIndex;
 
-  final List<Widget> _screens = const [
+  final List<Widget> _screens = [
     ContactsScreen(),
-    DocumentsScreen(),
-    NotificationsScreen(),
+    const DocumentsScreen(),
+    FerieScreen(),
+    const NotificationsScreen(),
   ];
 
   @override
@@ -69,6 +71,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
             } else if (index == 1) {
               context.read<DocumentProvider>().fetchDocuments();
             } else if (index == 2) {
+              // Ferie tab
+            } else if (index == 3) {
               context.read<NotificationProvider>().fetchUnread();
             }
           },
@@ -111,6 +115,15 @@ class _MainShellScreenState extends State<MainShellScreen> {
                 ),
               ),
               label: 'Documenti',
+            ),
+            
+            // Voce Ferie
+            BottomNavigationBarItem(
+              icon: const Padding(
+                padding: EdgeInsets.only(bottom: 4.0),
+                child: Icon(Icons.umbrella_rounded),
+              ),
+              label: 'Ferie',
             ),
 
             // Voce Notifiche

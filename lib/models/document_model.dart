@@ -73,6 +73,20 @@ class DocumentModel {
         return 'Contratto';
       case 'comunicazione_interna':
         return 'Comunicazione';
+      case 'certificato_malattia':
+        return 'Certificato di Malattia';
+      case 'certificato_infortunio':
+        return 'Certificato Infortunio';
+      case 'stato_famiglia':
+        return 'Stato di Famiglia';
+      case 'certificato_residenza':
+        return 'Certificato Residenza';
+      case 'carta_identita':
+        return "Carta d'Identità";
+      case 'attestato_alimentarista':
+        return 'Attestato Alimentarista';
+      case 'richiesta_assegni_familiari':
+        return 'Richiesta Assegni Familiari';
       case 'certificato_medico':
         return 'Certificato Medico';
       default:

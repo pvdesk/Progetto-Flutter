@@ -42,16 +42,32 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
 
   Color _getTypeColor(String type) {
     switch (type) {
+      // Documenti ricevuti dall'azienda
       case 'busta_paga':
         return const Color(0xFF00D2FF);
       case 'contratto':
         return const Color(0xFFC084FC);
       case 'comunicazione_interna':
         return const Color(0xFFFFB000);
-      case 'certificato_medico':
+      // Documenti inviati dal dipendente
+      case 'certificato_malattia':
+        return const Color(0xFFFF4B72); // rosso/rosa — salute
+      case 'certificato_infortunio':
+        return const Color(0xFFFF8C61); // arancio — infortunio
+      case 'stato_famiglia':
+        return const Color(0xFF34D399); // verde — famiglia
+      case 'certificato_residenza':
+        return const Color(0xFF60A5FA); // blu — residenza
+      case 'carta_identita':
+        return const Color(0xFF818CF8); // indaco — identità
+      case 'attestato_alimentarista':
+        return const Color(0xFFFBBF24); // ambra — alimentarista
+      case 'richiesta_assegni_familiari':
+        return const Color(0xFF2DD4BF); // teal — assegni
+      case 'certificato_medico': // legacy
         return const Color(0xFFFF4B72);
       default:
-        return Colors.white70;
+        return const Color(0xFF94A3B8); // grigio — altro
     }
   }
 
@@ -434,7 +450,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  String _selectedType = 'certificato_medico';
+  String _selectedType = 'certificato_malattia';
   
   PlatformFile? _selectedFile;
   bool _isSubmitting = false;
@@ -588,12 +604,36 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
                 ),
                 items: const [
                   DropdownMenuItem(
-                    value: 'certificato_medico',
-                    child: Text('Certificato Medico'),
+                    value: 'certificato_malattia',
+                    child: Text('Certificato di Malattia'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'certificato_infortunio',
+                    child: Text('Certificato Infortunio'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'stato_famiglia',
+                    child: Text('Stato di Famiglia'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'certificato_residenza',
+                    child: Text('Certificato Residenza'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'carta_identita',
+                    child: Text("Carta d'Identità"),
+                  ),
+                  DropdownMenuItem(
+                    value: 'attestato_alimentarista',
+                    child: Text('Attestato Alimentarista'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'richiesta_assegni_familiari',
+                    child: Text('Richiesta Assegni Familiari'),
                   ),
                   DropdownMenuItem(
                     value: 'altro',
-                    child: Text('Altro Documento'),
+                    child: Text('Altro'),
                   ),
                 ],
                 onChanged: (val) {

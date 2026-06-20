@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/io.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'remote_logger.dart';
 
 class ApiService {
   static const String _baseUrlKey   = 'api_base_url';
@@ -182,25 +183,18 @@ class ApiService {
     try {
       await dio.post('api/user/device-token', data: {'token': fcmToken});
       
-      // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
-      debugPrint('===========================================================');
-      debugPrint('=== DEBUG NOTIFICHE: TOKEN SALVATO CON SUCCESSO SUL SERVER ===');
-      debugPrint('Token: $fcmToken');
-      debugPrint('===========================================================');
+      RemoteLogger.info('=== DEBUG NOTIFICHE: TOKEN SALVATO CON SUCCESSO SUL SERVER ===', {
+        'token': fcmToken,
+      });
       
     } catch (e) {
-      debugPrint("Errore durante l'aggiornamento del device token: $e");
-      
-      // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
-      debugPrint('===========================================================');
-      debugPrint('=== DEBUG NOTIFICHE: ERRORE API SERVER DURANTE SALVATAGGIO TOKEN ===');
+      String details = e.toString();
       if (e is DioException) {
-        debugPrint('Status Code: ${e.response?.statusCode}');
-        debugPrint('Dati Risposta: ${e.response?.data}');
-      } else {
-        debugPrint('Dettaglio: $e');
+        details = 'Status Code: ${e.response?.statusCode}, Dati Risposta: ${e.response?.data}';
       }
-      debugPrint('===========================================================');
+      RemoteLogger.error('=== DEBUG NOTIFICHE: ERRORE API SERVER DURANTE SALVATAGGIO TOKEN ===', {
+        'dettaglio': details,
+      });
     }
   }
 

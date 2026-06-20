@@ -16,6 +16,7 @@ import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
 import 'widgets/update_checker_wrapper.dart';
+import 'services/remote_logger.dart';
 
 // ── Handler background/terminated — richiamato da Google Play Services ────────
 // Funziona anche con app killata: FCM è gestito a livello OS
@@ -124,6 +125,10 @@ void main() async {
 
   final apiService = ApiService();
   await apiService.init();
+
+  RemoteLogger.info('=== DEBUG NOTIFICHE: APP AVVIATA E SERVIZI INIZIALIZZATI ===', {
+    'platform': 'flutter',
+  });
 
   runApp(
     MultiProvider(

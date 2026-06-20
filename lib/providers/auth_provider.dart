@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
+import '../services/remote_logger.dart';
 
 class AuthProvider extends ChangeNotifier {
   final ApiService apiService;
@@ -68,12 +69,10 @@ class AuthProvider extends ChangeNotifier {
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         final token = await FirebaseMessaging.instance.getToken();
         if (token != null) {
-          // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
-          debugPrint('=== DEBUG NOTIFICHE: TOKEN OTTENUTO DA FIREBASE ===');
+          RemoteLogger.info('=== DEBUG NOTIFICHE: TOKEN OTTENUTO DA FIREBASE ===');
           await apiService.updateDeviceToken(token);
         } else {
-          // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
-          debugPrint('=== DEBUG NOTIFICHE: FIREBASE HA RESTITUITO UN TOKEN NULL! ===');
+          RemoteLogger.error('=== DEBUG NOTIFICHE: FIREBASE HA RESTITUITO UN TOKEN NULL! ===');
         }
 
         // Ascolta futuri refresh del token FCM (es. reinstall, update, clear data)
@@ -81,15 +80,10 @@ class AuthProvider extends ChangeNotifier {
           apiService.updateDeviceToken(newToken);
         });
       } else {
-        debugPrint('Permessi notifiche negati o non concessi.');
+        RemoteLogger.warning('Permessi notifiche negati o non concessi.');
       }
     } catch (e) {
-      debugPrint('Errore nel recupero del token FCM: $e');
-      // TODO: DEBUG NOTIFICHE - Da rimuovere una volta risolto il problema
-      debugPrint('===========================================================');
-      debugPrint('=== DEBUG NOTIFICHE: ERRORE CRITICO FIREBASE MESSAGING ===');
-      debugPrint('Dettaglio: $e');
-      debugPrint('===========================================================');
+      RemoteLogger.error('Errore nel recupero del token FCM: $e');
     }
   }
 
