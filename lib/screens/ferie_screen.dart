@@ -152,13 +152,13 @@ class _FerieScreenState extends State<FerieScreen> {
                           statoColor = Colors.orange;
                           statoText = 'Da firmare (OTP)';
                         } else if (stato == 'in_attesa') {
-                          statoColor = Colors.blue;
+                          statoColor = Colors.red; // in attesa di conferma → rosso
                           statoText = 'In attesa di approvazione';
                         } else if (stato == 'approvata') {
-                          statoColor = Colors.green;
+                          statoColor = Colors.green; // approvata → verde
                           statoText = 'Approvata';
                         } else if (stato == 'rifiutata') {
-                          statoColor = Colors.red;
+                          statoColor = Colors.blueGrey; // rifiutata → grigio (distinta dal rosso 'in attesa')
                           statoText = 'Rifiutata';
                         }
 
@@ -184,13 +184,22 @@ class _FerieScreenState extends State<FerieScreen> {
                                   ],
                                 ),
                                 Divider(),
-                                ...periodi.map((p) => Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                ...periodi.map((p) => Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: statoColor.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border(left: BorderSide(color: statoColor, width: 4)),
+                                  ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.date_range, size: 16, color: Colors.grey),
-                                      SizedBox(width: 8),
-                                      Text('${p['data_inizio']} al ${p['data_fine']}'),
+                                      Icon(Icons.date_range, size: 16, color: statoColor),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text('${p['data_inizio']} → ${p['data_fine']}',
+                                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                                      ),
                                     ],
                                   ),
                                 )).toList(),

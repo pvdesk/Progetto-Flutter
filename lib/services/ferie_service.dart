@@ -9,7 +9,14 @@ class FerieService {
   Future<List<dynamic>> fetchStoricoFerie() async {
     try {
       final response = await apiService.dio.get('/api/ferie');
-      return response.data;
+      final data = response.data;
+      if (data is Map && data['data'] is List) return data['data'];
+      if (data is List) return data;
+      return [];
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      final detail = (body is Map) ? (body['detail'] ?? body['error']) : body;
+      throw Exception('Errore nel recupero dello storico ferie: ${detail ?? e.message}');
     } catch (e) {
       throw Exception('Errore nel recupero dello storico ferie: $e');
     }

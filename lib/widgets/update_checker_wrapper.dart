@@ -77,7 +77,9 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
       barrierDismissible: !isMandatory,
       builder: (BuildContext context) {
         final bool showAndroidPlay = !kIsWeb && Platform.isAndroid && playStoreUrl.isNotEmpty && playStoreUrl != '#';
-        final bool showAndroidApk = !kIsWeb && Platform.isAndroid && apkUrl.isNotEmpty && !showAndroidPlay;
+        // Disabilitiamo il download diretto dell'APK via intent per evitare i blocchi del DownloadManager Android.
+        // Reindirizziamo sempre alla pagina web (che apre Chrome) per un'esperienza più stabile.
+        final bool showAndroidApk = false;
         final bool showIOSStore = !kIsWeb && Platform.isIOS && appStoreUrl.isNotEmpty && appStoreUrl != '#';
         final bool isIOS = !kIsWeb && Platform.isIOS;
 
