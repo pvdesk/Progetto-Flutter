@@ -46,11 +46,6 @@ void main() async {
   // Inizializza Firebase
   await Firebase.initializeApp();
 
-  // Richiedi l'ignoramento dell'ottimizzazione della batteria per non far killare l'app
-  if (await Permission.ignoreBatteryOptimizations.isDenied) {
-    await Permission.ignoreBatteryOptimizations.request();
-  }
-
   // Inizializza Flutter Local Notifications e crea il canale per Android
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
