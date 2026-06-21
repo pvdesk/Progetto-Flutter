@@ -49,3 +49,6 @@ node_modules/
 .env
 FIREBASE_CREDENTIALS
 /android/build/
+
+# Local Server Verification Files
+/FileVerificaServer/

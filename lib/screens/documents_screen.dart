@@ -10,6 +10,7 @@ import '../providers/document_provider.dart';
 import '../providers/config_provider.dart';
 import '../models/document_model.dart';
 import '../services/api_service.dart';
+import 'archive_documents_screen.dart';
 
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
@@ -90,8 +91,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
         
         // Se è un documento ricevuto, segnamo come letto localmente poiché il download fa scattare la lettura sul server
         if (doc.isCompanySent && !doc.isRead) {
+          final docProvider = context.read<DocumentProvider>();
           Future.delayed(const Duration(seconds: 2), () {
-            context.read<DocumentProvider>().markAsRead(doc.id);
+            docProvider.markAsRead(doc.id);
           });
         }
       } else {
@@ -101,43 +103,42 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
           options: Options(responseType: ResponseType.bytes),
         );
 
+        if (!context.mounted) return;
+
         if (response.statusCode == 200) {
           // Segnamo come letto se è dell'azienda
           if (doc.isCompanySent && !doc.isRead) {
             context.read<DocumentProvider>().markAsRead(doc.id);
           }
           
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                backgroundColor: const Color(0xFF1E293B),
-                title: const Text('Download Completato', style: TextStyle(color: Colors.white)),
-                content: Text(
-                  'Il file "${doc.nomeFile}" è stato scaricato con successo nella memoria interna.',
-                  style: const TextStyle(color: Colors.white70),
-                ),
-                actions: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('OK', style: TextStyle(color: Colors.white)),
-                  ),
-                ],
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: const Color(0xFF1E293B),
+              title: const Text('Download Completato', style: TextStyle(color: Colors.white)),
+              content: Text(
+                'Il file "${doc.nomeFile}" è stato scaricato con successo nella memoria interna.',
+                style: const TextStyle(color: Colors.white70),
               ),
-            );
-          }
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          );
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Impossibile scaricare il file. Riprova.'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Impossibile scaricare il file. Riprova.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
@@ -181,6 +182,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.archive_outlined, color: Colors.white),
+            tooltip: 'Archivio',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ArchiveDocumentsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () => documentProvider.fetchDocuments(),
@@ -227,10 +238,20 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
         controller: _tabController,
         children: [
           // Tab Documenti Ricevuti
-          _buildDocumentList(context, documentProvider.receivedDocuments, isReceived: true),
+          _buildDocumentList(
+            context,
+            documentProvider.recentReceivedDocuments,
+            archivedDocs: documentProvider.archivedReceivedDocuments,
+            isReceived: true,
+          ),
 
           // Tab Documenti Inviati
-          _buildDocumentList(context, documentProvider.sentDocuments, isReceived: false),
+          _buildDocumentList(
+            context,
+            documentProvider.recentSentDocuments,
+            archivedDocs: documentProvider.archivedSentDocuments,
+            isReceived: false,
+          ),
         ],
       ),
       floatingActionButton: ValueListenableBuilder<double>(
@@ -252,7 +273,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildDocumentList(BuildContext context, List<DocumentModel> docs, {required bool isReceived}) {
+  Widget _buildDocumentList(
+    BuildContext context,
+    List<DocumentModel> docs, {
+    required List<DocumentModel> archivedDocs,
+    required bool isReceived,
+  }) {
     final documentProvider = context.watch<DocumentProvider>();
 
     if (documentProvider.isLoading && docs.isEmpty) {
@@ -260,6 +286,63 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     }
 
     if (docs.isEmpty) {
+      if (archivedDocs.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.folder_zip_outlined,
+                  color: Colors.white.withValues(alpha: 0.15),
+                  size: 80,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  isReceived 
+                    ? 'Nessun documento recente ricevuto.' 
+                    : 'Nessun documento recente inviato.',
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'I documenti più vecchi di 4 giorni si trovano in archivio.',
+                  style: TextStyle(color: Colors.white38, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ArchiveDocumentsScreen(
+                          initialIndex: isReceived ? 0 : 1,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.inventory_2_outlined, color: Colors.white),
+                  label: Text(
+                    isReceived 
+                      ? 'Apri Archivio Ricevuti (${archivedDocs.length})'
+                      : 'Apri Archivio Inviati (${archivedDocs.length})',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8C61),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -298,8 +381,83 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
       onRefresh: () => documentProvider.fetchDocuments(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        itemCount: docs.length,
+        itemCount: docs.length + (archivedDocs.isNotEmpty ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == docs.length) {
+            return Card(
+              color: const Color(0xFF1E293B),
+              margin: const EdgeInsets.only(bottom: 24, top: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: const Color(0xFFFF8C61).withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ArchiveDocumentsScreen(
+                        initialIndex: isReceived ? 0 : 1,
+                      ),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF8C61).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.inventory_2_outlined,
+                          color: Color(0xFFFF8C61),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isReceived ? 'Archivio Ricevuti' : 'Archivio Inviati',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Visualizza ${archivedDocs.length} document${archivedDocs.length == 1 ? 'o' : 'i'} più vecchi di 4 giorni',
+                              style: const TextStyle(
+                                color: Colors.white60,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white38,
+                        size: 24,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
           final doc = docs[index];
           final typeColor = _getTypeColor(doc.tipo);
 
@@ -463,6 +621,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
   }
 
   void _pickFile() async {
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final result = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -482,7 +641,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
         });
       }
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('Impossibile selezionare il file.'),
           backgroundColor: Colors.redAccent,
@@ -517,6 +676,9 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
     setState(() => _isSubmitting = true);
 
     final provider = context.read<DocumentProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     final success = await provider.uploadDocument(
       title: _titleController.text.trim(),
       type: _selectedType,
@@ -524,24 +686,23 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
       filename: _selectedFile!.name,
     );
 
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-      if (success) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Documento inviato all\'azienda con successo!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(provider.errorMessage ?? 'Errore nel caricamento del documento.'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+    if (success) {
+      navigator.pop();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Documento inviato all\'azienda con successo!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(provider.errorMessage ?? 'Errore nel caricamento del documento.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
@@ -550,15 +711,17 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
     // Spazio aggiuntivo per la tastiera su mobile
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Padding(
-      padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 20.0 + bottomInset),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 20.0 + bottomInset),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -739,6 +902,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

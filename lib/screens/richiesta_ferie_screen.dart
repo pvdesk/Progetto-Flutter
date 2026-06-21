@@ -143,58 +143,61 @@ class _RichiestaFerieScreenState extends State<RichiestaFerieScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Nuova Richiesta Ferie')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _calendario(),
-          const SizedBox(height: 12),
-          _barraSelezione(),
-          const SizedBox(height: 16),
-          if (_periodi.isNotEmpty) ...[
-            const Text('Periodi aggiunti', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            const SizedBox(height: 8),
-            ..._periodi.asMap().entries.map((entry) {
-              final p = entry.value;
-              final df = DateFormat('dd/MM/yyyy');
-              final giorni = p['fine']!.difference(p['inizio']!).inDays + 1;
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.event_available, color: _arancione),
-                  title: Text('${df.format(p['inizio']!)} → ${df.format(p['fine']!)}'),
-                  subtitle: Text('$giorni giorn${giorni == 1 ? 'o' : 'i'}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _removePeriod(entry.key),
+      body: SafeArea(
+        bottom: true,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _calendario(),
+            const SizedBox(height: 12),
+            _barraSelezione(),
+            const SizedBox(height: 16),
+            if (_periodi.isNotEmpty) ...[
+              const Text('Periodi aggiunti', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 8),
+              ..._periodi.asMap().entries.map((entry) {
+                final p = entry.value;
+                final df = DateFormat('dd/MM/yyyy');
+                final giorni = p['fine']!.difference(p['inizio']!).inDays + 1;
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.event_available, color: _arancione),
+                    title: Text('${df.format(p['inizio']!)} → ${df.format(p['fine']!)}'),
+                    subtitle: Text('$giorni giorn${giorni == 1 ? 'o' : 'i'}'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => _removePeriod(entry.key),
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+              const SizedBox(height: 16),
+            ],
+            TextField(
+              controller: _noteController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Note (opzionale)',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: (_isSubmitting || _periodi.isEmpty) ? null : _submit,
+              icon: _isSubmitting
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Icon(Icons.send),
+              label: Text(_isSubmitting ? 'Invio...' : 'Invia richiesta', style: const TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _arancione,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
-          TextField(
-            controller: _noteController,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Note (opzionale)',
-              border: OutlineInputBorder(),
-              alignLabelWithHint: true,
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: (_isSubmitting || _periodi.isEmpty) ? null : _submit,
-            icon: _isSubmitting
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Icon(Icons.send),
-            label: Text(_isSubmitting ? 'Invio...' : 'Invia richiesta', style: const TextStyle(fontSize: 16)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _arancione,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+        ),
       ),
     );
   }

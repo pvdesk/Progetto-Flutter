@@ -13,6 +13,26 @@ class DocumentProvider extends ChangeNotifier {
   List<DocumentModel> get documents => _documents;
   List<DocumentModel> get receivedDocuments => _documents.where((d) => d.isCompanySent).toList();
   List<DocumentModel> get sentDocuments => _documents.where((d) => !d.isCompanySent).toList();
+
+  List<DocumentModel> get recentReceivedDocuments {
+    final cutoff = DateTime.now().subtract(const Duration(days: 4));
+    return receivedDocuments.where((d) => !d.createdAt.isBefore(cutoff)).toList();
+  }
+
+  List<DocumentModel> get archivedReceivedDocuments {
+    final cutoff = DateTime.now().subtract(const Duration(days: 4));
+    return receivedDocuments.where((d) => d.createdAt.isBefore(cutoff)).toList();
+  }
+
+  List<DocumentModel> get recentSentDocuments {
+    final cutoff = DateTime.now().subtract(const Duration(days: 4));
+    return sentDocuments.where((d) => !d.createdAt.isBefore(cutoff)).toList();
+  }
+
+  List<DocumentModel> get archivedSentDocuments {
+    final cutoff = DateTime.now().subtract(const Duration(days: 4));
+    return sentDocuments.where((d) => d.createdAt.isBefore(cutoff)).toList();
+  }
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
