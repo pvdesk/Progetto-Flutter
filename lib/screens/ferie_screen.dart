@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/ferie_service.dart';
 import 'richiesta_ferie_screen.dart';
@@ -119,6 +120,18 @@ class _FerieScreenState extends State<FerieScreen> {
     );
   }
 
+  String _formatDateString(dynamic dateValue) {
+    if (dateValue == null) return '';
+    final String dateStr = dateValue.toString();
+    try {
+      final parsed = DateTime.tryParse(dateStr);
+      if (parsed != null) {
+        return DateFormat('dd/MM/yyyy').format(parsed);
+      }
+    } catch (_) {}
+    return dateStr;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,6 +157,7 @@ class _FerieScreenState extends State<FerieScreen> {
                         final stato = req['stato'];
                         final id = req['id'];
                         final dateStr = req['data_richiesta']; // es. 2026-06-20
+                        final formattedDate = _formatDateString(dateStr);
                         
                         Color statoColor = Colors.grey;
                         String statoText = stato;
@@ -175,9 +189,16 @@ class _FerieScreenState extends State<FerieScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Richiesta del $dateStr', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Expanded(
+                                      child: Text(
+                                        'Richiesta del $formattedDate',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
                                     Chip(
-                                      label: Text(statoText, style: TextStyle(color: Colors.white, fontSize: 12)),
+                                      label: Text(statoText, style: const TextStyle(color: Colors.white, fontSize: 12)),
                                       backgroundColor: statoColor,
                                       padding: EdgeInsets.zero,
                                     ),
@@ -188,7 +209,7 @@ class _FerieScreenState extends State<FerieScreen> {
                                   margin: const EdgeInsets.symmetric(vertical: 4.0),
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: statoColor.withOpacity(0.15),
+                                    color: statoColor.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border(left: BorderSide(color: statoColor, width: 4)),
                                   ),
@@ -197,8 +218,10 @@ class _FerieScreenState extends State<FerieScreen> {
                                       Icon(Icons.date_range, size: 16, color: statoColor),
                                       const SizedBox(width: 8),
                                       Expanded(
-                                        child: Text('${p['data_inizio']} → ${p['data_fine']}',
-                                            style: const TextStyle(fontWeight: FontWeight.w500)),
+                                        child: Text(
+                                          '${_formatDateString(p['data_inizio'])} → ${_formatDateString(p['data_fine'])}',
+                                          style: const TextStyle(fontWeight: FontWeight.w500),
+                                        ),
                                       ),
                                     ],
                                   ),

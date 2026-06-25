@@ -272,6 +272,39 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
+  String? _privacyText;
+  int? _privacyDocId;
+  bool _isPrivacyLoaded = false;
+
+  String? get privacyText => _privacyText;
+  int? get privacyDocId => _privacyDocId;
+  bool get isPrivacyLoaded => _isPrivacyLoaded;
+
+  Future<void> fetchPrivacyInfo() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await apiService.dio.get('api/mobile/privacy');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        _privacyText = data['testo'] as String?;
+        _privacyDocId = data['documento_id'] as int?;
+        _isPrivacyLoaded = true;
+      } else {
+        _errorMessage = data['message'] as String?;
+      }
+    } on DioException catch (e) {
+      _errorMessage = e.response?.data?['message'] ?? 'Errore durante il caricamento della privacy.';
+    } catch (_) {
+      _errorMessage = 'Errore di connessione.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> deleteAccount() async {
     if (!isAuthenticated) return false;
 

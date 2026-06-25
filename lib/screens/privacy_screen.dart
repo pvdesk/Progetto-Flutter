@@ -2,13 +2,76 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
-class PrivacyScreen extends StatelessWidget {
+class PrivacyScreen extends StatefulWidget {
   const PrivacyScreen({super.key});
+
+  @override
+  State<PrivacyScreen> createState() => _PrivacyScreenState();
+}
+
+class _PrivacyScreenState extends State<PrivacyScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().fetchPrivacyInfo();
+    });
+  }
+
+  String _parseHtmlToText(String html) {
+    String text = html;
+    
+    // Convert headers & paragraphs
+    text = text.replaceAll(RegExp(r'</?(h1|h2|h3)>'), '\n\n');
+    text = text.replaceAll(RegExp(r'</?p>'), '\n');
+    text = text.replaceAll(RegExp(r'</?strong>'), '');
+    text = text.replaceAll(RegExp(r'<br\s*/?>'), '\n');
+    text = text.replaceAll(RegExp(r'<li>'), '• ');
+    text = text.replaceAll(RegExp(r'</li>'), '\n');
+    text = text.replaceAll(RegExp(r'</?ul>'), '\n');
+    
+    // Strip other HTML tags
+    text = text.replaceAll(RegExp(r'<[^>]*>'), '');
+    
+    // Decode HTML entities
+    text = text.replaceAll('&agrave;', 'à');
+    text = text.replaceAll('&eacute;', 'é');
+    text = text.replaceAll('&egrave;', 'è');
+    text = text.replaceAll('&igrave;', 'ì');
+    text = text.replaceAll('&ograve;', 'ò');
+    text = text.replaceAll('&ugrave;', 'ù');
+    text = text.replaceAll('&apos;', "'");
+    text = text.replaceAll('&quot;', '"');
+    text = text.replaceAll('&amp;', '&');
+    text = text.replaceAll('&lt;', '<');
+    text = text.replaceAll('&gt;', '>');
+    text = text.replaceAll('&nbsp;', ' ');
+    
+    text = text.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+    return text.trim();
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final isLoading = authProvider.isLoading;
+
+    final defaultText = 'Informativa sul Trattamento dei Dati Personali (GDPR)\n\n'
+        '1. Titolare del Trattamento\n'
+        'Il titolare del trattamento dei dati è l\'azienda che gestisce questa istanza di app_gestione.\n\n'
+        '2. Tipologia di dati raccolti\n'
+        'Attraverso la funzionalità di Chat, vengono raccolti e archiviati i messaggi scambiati tra te e i referenti autorizzati, comprese le informazioni su mittente, destinatario, orari di invio/ricezione e stato di lettura.\n\n'
+        '3. Finalità del trattamento\n'
+        'I dati sono trattati esclusivamente per agevolare il coordinamento lavorativo interno, la gestione dei turni, l\'assegnazione delle commesse ed esigenze organizzative aziendali.\n\n'
+        '4. Conservazione dei dati\n'
+        'I messaggi rimarranno memorizzati sui server aziendali in conformità con le policy di conservazione interne e saranno accessibili solo al personale appositamente autorizzato.\n\n'
+        '5. Diritti dell\'interessato\n'
+        'In conformità con il Regolamento UE 2016/679 (GDPR), hai il diritto in qualsiasi momento di richiedere l\'accesso ai tuoi dati, la rettifica, la cancellazione o la limitazione del trattamento rivolgendosi all\'amministrazione.\n\n'
+        'Accettando i presenti termini, acconsenti espressamente al trattamento dei dati relativi all\'utilizzo della chat aziendale.';
+
+    final String displayPrivacyText = authProvider.privacyText != null
+        ? _parseHtmlToText(authProvider.privacyText!)
+        : defaultText;
 
     return Scaffold(
       body: Container(
@@ -74,31 +137,22 @@ class PrivacyScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                     ),
-                    child: Scrollbar(
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Text(
-                          'Informativa sul Trattamento dei Dati Personali (GDPR)\n\n'
-                          '1. Titolare del Trattamento\n'
-                          'Il titolare del trattamento dei dati è l\'azienda che gestisce questa istanza di app_gestione.\n\n'
-                          '2. Tipologia di dati raccolti\n'
-                          'Attraverso la funzionalità di Chat, vengono raccolti e archiviati i messaggi scambiati tra te e i referenti autorizzati, comprese le informazioni su mittente, destinatario, orari di invio/ricezione e stato di lettura.\n\n'
-                          '3. Finalità del trattamento\n'
-                          'I dati sono trattati esclusivamente per agevolare il coordinamento lavorativo interno, la gestione dei turni, l\'assegnazione delle commesse ed esigenze organizzative aziendali.\n\n'
-                          '4. Conservazione dei dati\n'
-                          'I messaggi rimarranno memorizzati sui server aziendali in conformità con le policy di conservazione interne e saranno accessibili solo al personale appositamente autorizzato.\n\n'
-                          '5. Diritti dell\'interessato\n'
-                          'In conformità con il Regolamento UE 2016/679 (GDPR), hai il diritto in qualsiasi momento di richiedere l\'accesso ai tuoi dati, la rettifica, la cancellazione o la limitazione del trattamento rivolgendoti all\'amministrazione.\n\n'
-                          'Accettando i presenti termini, acconsenti espressamente al trattamento dei dati relativi all\'utilizzo della chat aziendale.',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.85),
-                            fontSize: 14,
-                            height: 1.5,
+                    child: isLoading && authProvider.privacyText == null
+                        ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF8C61)))
+                        : Scrollbar(
+                            thumbVisibility: true,
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: Text(
+                                displayPrivacyText,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 14,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -139,7 +193,7 @@ class PrivacyScreen extends StatelessWidget {
                         ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 OutlinedButton(
                   onPressed: isLoading ? null : () => authProvider.logout(),
                   style: OutlinedButton.styleFrom(
