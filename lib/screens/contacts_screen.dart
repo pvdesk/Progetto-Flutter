@@ -220,7 +220,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
     if (chatProvider.isLoadingContacts) {
       return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     }
-    if (chatProvider.errorMessage != null) {
+    if (chatProvider.contactsError != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -230,7 +230,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
               const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
               const SizedBox(height: 16),
               Text(
-                chatProvider.errorMessage!,
+                chatProvider.contactsError!,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
@@ -331,7 +331,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
     if (chatProvider.isLoadingRooms) {
       return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     }
-    if (chatProvider.errorMessage != null && chatProvider.rooms.isEmpty) {
+    if (chatProvider.roomsError != null && chatProvider.rooms.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -341,7 +341,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
               const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
               const SizedBox(height: 16),
               Text(
-                'Impossibile caricare le stanze',
+                chatProvider.roomsError ?? 'Impossibile caricare le stanze',
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),

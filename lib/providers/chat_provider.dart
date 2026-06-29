@@ -18,7 +18,9 @@ class ChatProvider extends ChangeNotifier {
   bool _isLoadingContacts = false;
   bool _isLoadingMessages = false;
   bool _isLoadingRooms = false;
-  String? _errorMessage;
+  String? _contactsError;
+  String? _roomsError;
+  String? _messagesError;
   
   ContactModel? _activeContact;
   RoomModel? _activeRoom;
@@ -33,7 +35,9 @@ class ChatProvider extends ChangeNotifier {
   bool get isLoadingContacts => _isLoadingContacts;
   bool get isLoadingMessages => _isLoadingMessages;
   bool get isLoadingRooms => _isLoadingRooms;
-  String? get errorMessage => _errorMessage;
+  String? get contactsError => _contactsError;
+  String? get roomsError => _roomsError;
+  String? get messagesError => _messagesError;
   ContactModel? get activeContact => _activeContact;
   RoomModel? get activeRoom => _activeRoom;
 
@@ -42,7 +46,7 @@ class ChatProvider extends ChangeNotifier {
   // Carica i contatti abilitati
   Future<void> fetchContacts() async {
     _isLoadingContacts = true;
-    _errorMessage = null;
+    _contactsError = null;
     notifyListeners();
 
     try {
@@ -52,16 +56,16 @@ class ChatProvider extends ChangeNotifier {
         final list = data['contacts'] as List<dynamic>;
         _contacts = list.map((c) => ContactModel.fromJson(c as Map<String, dynamic>)).toList();
       } else {
-        _errorMessage = data['message'] as String?;
+        _contactsError = data['message'] as String?;
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        _errorMessage = 'Privacy non accettata';
+        _contactsError = 'Privacy non accettata';
       } else {
-        _errorMessage = 'Errore di rete durante il caricamento dei contatti.';
+        _contactsError = 'Errore di rete durante il caricamento dei contatti.';
       }
     } catch (_) {
-      _errorMessage = 'Impossibile caricare i contatti.';
+      _contactsError = 'Impossibile caricare i contatti.';
     }
 
     _isLoadingContacts = false;
@@ -71,7 +75,7 @@ class ChatProvider extends ChangeNotifier {
   // Carica le stanze (Punti di Servizio) abilitate
   Future<void> fetchRooms() async {
     _isLoadingRooms = true;
-    _errorMessage = null;
+    _roomsError = null;
     notifyListeners();
 
     try {
@@ -81,16 +85,16 @@ class ChatProvider extends ChangeNotifier {
         final list = data['rooms'] as List<dynamic>;
         _rooms = list.map((r) => RoomModel.fromJson(r as Map<String, dynamic>)).toList();
       } else {
-        _errorMessage = data['message'] as String?;
+        _roomsError = data['message'] as String?;
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        _errorMessage = 'Privacy non accettata';
+        _roomsError = 'Privacy non accettata';
       } else {
-        _errorMessage = 'Errore di rete durante il caricamento delle stanze.';
+        _roomsError = 'Errore di rete durante il caricamento delle stanze.';
       }
     } catch (_) {
-      _errorMessage = 'Impossibile caricare le stanze.';
+      _roomsError = 'Impossibile caricare le stanze.';
     }
 
     _isLoadingRooms = false;
@@ -100,7 +104,7 @@ class ChatProvider extends ChangeNotifier {
   // Carica messaggi per un contatto specifico
   Future<void> fetchMessages(int contactId) async {
     _isLoadingMessages = true;
-    _errorMessage = null;
+    _messagesError = null;
     // Non cancelliamo i messaggi precedenti se stiamo caricando lo stesso contatto per evitare flickering
     if (_activeContact?.id != contactId) {
       _messages = [];
@@ -114,10 +118,10 @@ class ChatProvider extends ChangeNotifier {
         final list = data['messages'] as List<dynamic>;
         _messages = list.map((m) => MessageModel.fromJson(m as Map<String, dynamic>)).toList();
       } else {
-        _errorMessage = data['message'] as String?;
+        _messagesError = data['message'] as String?;
       }
     } catch (_) {
-      _errorMessage = 'Impossibile recuperare i messaggi.';
+      _messagesError = 'Impossibile recuperare i messaggi.';
     }
 
     _isLoadingMessages = false;
@@ -127,7 +131,7 @@ class ChatProvider extends ChangeNotifier {
   // Carica messaggi per una stanza specifica
   Future<void> fetchRoomMessages(int roomId) async {
     _isLoadingMessages = true;
-    _errorMessage = null;
+    _messagesError = null;
     if (_activeRoom?.id != roomId) {
       _roomMessages = [];
     }
@@ -140,10 +144,10 @@ class ChatProvider extends ChangeNotifier {
         final list = data['messages'] as List<dynamic>;
         _roomMessages = list.map((m) => GroupChatMessageModel.fromJson(m as Map<String, dynamic>)).toList();
       } else {
-        _errorMessage = data['message'] as String?;
+        _messagesError = data['message'] as String?;
       }
     } catch (_) {
-      _errorMessage = 'Impossibile recuperare i messaggi del gruppo.';
+      _messagesError = 'Impossibile recuperare i messaggi del gruppo.';
     }
 
     _isLoadingMessages = false;

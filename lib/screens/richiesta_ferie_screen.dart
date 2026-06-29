@@ -109,6 +109,7 @@ class _RichiestaFerieScreenState extends State<RichiestaFerieScreen> {
     try {
       final res = await widget.ferieService.richiediFerie(formattedPeriodi, _noteController.text);
       if (!mounted) return;
+      /*
       if (res['debug_otp'] != null) {
         showDialog(
           context: context,
@@ -127,11 +128,12 @@ class _RichiestaFerieScreenState extends State<RichiestaFerieScreen> {
           ),
         );
       } else {
+      */
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Richiesta inviata. Controlla la tua email per l\'OTP.')),
         );
         Navigator.pop(context, true);
-      }
+      // }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
