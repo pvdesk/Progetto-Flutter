@@ -149,7 +149,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
             ),
 
             // Voce Automezzi (condizionale)
-            if (['responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni']
+            if (['responsabile_manutenzione', 'responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni']
                 .contains(context.watch<AuthProvider>().currentUser?.ruolo.toLowerCase()))
               const BottomNavigationBarItem(
                 icon: Padding(
