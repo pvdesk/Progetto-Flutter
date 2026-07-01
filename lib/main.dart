@@ -12,6 +12,8 @@ import 'providers/document_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/config_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/automezzi_provider.dart';
+import 'services/automezzi_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -147,6 +149,9 @@ void main() async {
         ChangeNotifierProvider<NotificationProvider>(
           create: (_) => NotificationProvider(apiService),
         ),
+        ChangeNotifierProvider<AutomezziProvider>(
+          create: (_) => AutomezziProvider(AutomezziService(apiService)),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -208,6 +213,12 @@ class _MyAppState extends State<MyApp> {
       // Tab 2 = Notifiche
       navigatorKey.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 2)),
+        (route) => false,
+      );
+    } else if (type == 'automezzi') {
+      // Tab 4 = Automezzi
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 4)),
         (route) => false,
       );
     }

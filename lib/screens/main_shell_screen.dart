@@ -7,6 +7,8 @@ import 'contacts_screen.dart';
 import 'documents_screen.dart';
 import 'notifications_screen.dart';
 import 'ferie_screen.dart';
+import 'automezzi_screen.dart';
+import '../providers/auth_provider.dart';
 
 class MainShellScreen extends StatefulWidget {
   final int initialTab;
@@ -24,6 +26,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     const DocumentsScreen(),
     FerieScreen(),
     const NotificationsScreen(),
+    const AutomezziScreen(),
   ];
 
   @override
@@ -74,6 +77,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
               // Ferie tab
             } else if (index == 3) {
               context.read<NotificationProvider>().fetchUnread();
+            } else if (index == 4) {
+              // Automezzi tab
             }
           },
           backgroundColor: const Color(0xFF1E293B),
@@ -142,6 +147,17 @@ class _MainShellScreenState extends State<MainShellScreen> {
               ),
               label: 'Notifiche',
             ),
+
+            // Voce Automezzi (condizionale)
+            if (['responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni']
+                .contains(context.watch<AuthProvider>().currentUser?.ruolo.toLowerCase()))
+              const BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: 4.0),
+                  child: Icon(Icons.local_shipping_rounded),
+                ),
+                label: 'Automezzi',
+              ),
           ],
         ),
       ),
