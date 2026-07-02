@@ -41,7 +41,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
           builder: (BuildContext context, StateSetter setModalState) {
             Future<void> pickFile() async {
               try {
-                final result = await FilePicker.platform.pickFiles(
+                final result = await FilePicker.pickFiles(
                   type: FileType.custom,
                   allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
                 );
@@ -68,7 +68,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.between,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           'Nuovo Intervento Interno',
@@ -133,7 +133,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                                     ? 'Allega foto / rapporto (PDF/Img)'
                                     : selectedFile!.path.split('/').last,
                                 style: TextStyle(
-                                  color: selectedFile == null ? Colors.black54 : Colors.black80,
+                                  color: selectedFile == null ? Colors.black54 : Colors.black87,
                                   fontWeight: selectedFile == null ? FontWeight.normal : FontWeight.bold,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -271,7 +271,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.between,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       att.tipoAttrezzatura != null ? att.tipoAttrezzatura!.label : 'Attrezzatura Mappata',
@@ -402,7 +402,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.between,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             date,

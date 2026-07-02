@@ -183,14 +183,14 @@ class ChatProvider extends ChangeNotifier {
   }
 
   // Invia un messaggio ad una stanza
-  Future<bool> sendRoomMessage(int roomId, String text) async {
+  Future<bool> sendRoomMessage(String roomId, String text) async {
     if (text.trim().isEmpty) return false;
 
     try {
       final response = await apiService.dio.post(
         'api/chat/rooms/messages',
         data: {
-          'punto_servizio_id': roomId,
+          'room_id': roomId,
           'testo': text,
         },
       );

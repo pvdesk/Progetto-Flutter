@@ -21,14 +21,6 @@ class MainShellScreen extends StatefulWidget {
 class _MainShellScreenState extends State<MainShellScreen> {
   late int _currentIndex;
 
-  final List<Widget> _screens = [
-    ContactsScreen(),
-    const DocumentsScreen(),
-    FerieScreen(),
-    const NotificationsScreen(),
-    const ManutenzioniHubScreen(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -41,16 +33,118 @@ class _MainShellScreenState extends State<MainShellScreen> {
     });
   }
 
+  bool _isManutenzione(String? ruolo) {
+    if (ruolo == null) return false;
+    const manutenzioneRoles = [
+      'responsabile_manutenzione',
+      'responsabile_manutenzioni',
+      'addetto manutenzioni',
+      'manutenzioni automezzi',
+      'manutenzioni',
+      'manutentore',
+    ];
+    return manutenzioneRoles.contains(ruolo.toLowerCase());
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final documentProvider = context.watch<DocumentProvider>();
     final notificationProvider = context.watch<NotificationProvider>();
+    final authProvider = context.watch<AuthProvider>();
+
+    final bool showManutenzioni = _isManutenzione(authProvider.currentUser?.ruolo);
+
+    // Costruiamo le liste dinamicamente in base al ruolo
+    final List<Widget> screens = [
+      ContactsScreen(),
+      const DocumentsScreen(),
+      FerieScreen(),
+      const NotificationsScreen(),
+      if (showManutenzioni) const ManutenzioniHubScreen(),
+    ];
+
+    final List<BottomNavigationBarItem> navItems = [
+      // Voce Chat
+      BottomNavigationBarItem(
+        icon: Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Badge(
+            isLabelVisible: chatProvider.unreadCount > 0,
+            label: Text(
+              chatProvider.unreadCount.toString(),
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.redAccent,
+            child: const Icon(Icons.chat_bubble_rounded),
+          ),
+        ),
+        label: 'Chat',
+      ),
+
+      // Voce Documenti
+      BottomNavigationBarItem(
+        icon: Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Badge(
+            isLabelVisible: documentProvider.unreadDocumentsCount > 0,
+            label: Text(
+              documentProvider.unreadDocumentsCount.toString(),
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.redAccent,
+            child: const Icon(Icons.folder_shared_rounded),
+          ),
+        ),
+        label: 'Documenti',
+      ),
+
+      // Voce Ferie
+      const BottomNavigationBarItem(
+        icon: Padding(
+          padding: EdgeInsets.only(bottom: 4.0),
+          child: Icon(Icons.umbrella_rounded),
+        ),
+        label: 'Ferie',
+      ),
+
+      // Voce Notifiche
+      BottomNavigationBarItem(
+        icon: Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Badge(
+            isLabelVisible: notificationProvider.unreadCount > 0,
+            label: Text(
+              notificationProvider.unreadCount.toString(),
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.redAccent,
+            child: const Icon(Icons.notifications_rounded),
+          ),
+        ),
+        label: 'Notifiche',
+      ),
+
+      // Voce Manutenzioni (condizionale, unificata)
+      if (showManutenzioni)
+        const BottomNavigationBarItem(
+          icon: Padding(
+            padding: EdgeInsets.only(bottom: 4.0),
+            child: Icon(Icons.build_rounded),
+          ),
+          label: 'Manutenzioni',
+        ),
+    ];
+
+    // Assicura che _currentIndex sia nel range valido
+    if (_currentIndex >= screens.length) {
+      _currentIndex = 0;
+    }
 
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -77,8 +171,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
               // Ferie tab
             } else if (index == 3) {
               context.read<NotificationProvider>().fetchUnread();
-            } else if (index == 4) {
-              // Automezzi tab
             }
           },
           backgroundColor: const Color(0xFF1E293B),
@@ -87,78 +179,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
           selectedFontSize: 12,
           unselectedFontSize: 12,
           type: BottomNavigationBarType.fixed,
-          items: [
-            // Voce Chat
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Badge(
-                  isLabelVisible: chatProvider.unreadCount > 0,
-                  label: Text(
-                    chatProvider.unreadCount.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                  backgroundColor: Colors.redAccent,
-                  child: const Icon(Icons.chat_bubble_rounded),
-                ),
-              ),
-              label: 'Chat',
-            ),
-            
-            // Voce Documenti
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Badge(
-                  isLabelVisible: documentProvider.unreadDocumentsCount > 0,
-                  label: Text(
-                    documentProvider.unreadDocumentsCount.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                  backgroundColor: Colors.redAccent,
-                  child: const Icon(Icons.folder_shared_rounded),
-                ),
-              ),
-              label: 'Documenti',
-            ),
-            
-            // Voce Ferie
-            BottomNavigationBarItem(
-              icon: const Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.umbrella_rounded),
-              ),
-              label: 'Ferie',
-            ),
-
-            // Voce Notifiche
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Badge(
-                  isLabelVisible: notificationProvider.unreadCount > 0,
-                  label: Text(
-                    notificationProvider.unreadCount.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                  backgroundColor: Colors.redAccent,
-                  child: const Icon(Icons.notifications_rounded),
-                ),
-              ),
-              label: 'Notifiche',
-            ),
-
-            // Voce Manutenzioni (condizionale, unificata)
-            if (['responsabile_manutenzione', 'responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni', 'manutentore']
-                .contains(context.watch<AuthProvider>().currentUser?.ruolo.toLowerCase()))
-              const BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(bottom: 4.0),
-                  child: Icon(Icons.build_rounded),
-                ),
-                label: 'Manutenzioni',
-              ),
-          ],
+          items: navItems,
         ),
       ),
     );

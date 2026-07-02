@@ -15,7 +15,7 @@ class AttrezzatureScreen extends StatefulWidget {
 
 class _AttrezzatureScreenState extends State<AttrezzatureScreen> {
   final TextEditingController _codeController = TextEditingController();
-  bool _isScanning = false;
+
 
   void _handleCodeSubmitted(String code) async {
     if (code.trim().isEmpty) return;
@@ -161,7 +161,7 @@ class _AttrezzatureScreenState extends State<AttrezzatureScreen> {
               const Text(
                 'Oppure inserisci il codice a mano',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                textAlign: center,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
 

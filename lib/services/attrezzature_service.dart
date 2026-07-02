@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../models/attrezzatura_model.dart';
-import '../models/tipo_attrezzatura_model.dart';
+
 import 'api_service.dart';
 import 'remote_logger.dart';
 
