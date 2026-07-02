@@ -129,7 +129,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   // Carica messaggi per una stanza specifica
-  Future<void> fetchRoomMessages(int roomId) async {
+  Future<void> fetchRoomMessages(String roomId) async {
     _isLoadingMessages = true;
     _messagesError = null;
     if (_activeRoom?.id != roomId) {

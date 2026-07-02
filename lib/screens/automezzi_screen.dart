@@ -5,7 +5,8 @@ import '../providers/automezzi_provider.dart';
 import '../models/automezzo_model.dart';
 
 class AutomezziScreen extends StatefulWidget {
-  const AutomezziScreen({super.key});
+  final bool showAppBar;
+  const AutomezziScreen({super.key, this.showAppBar = true});
 
   @override
   State<AutomezziScreen> createState() => _AutomezziScreenState();
@@ -173,15 +174,17 @@ class _AutomezziScreenState extends State<AutomezziScreen> {
     final provider = context.watch<AutomezziProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Automezzi'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => provider.fetchAutomezzi(),
-          )
-        ],
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: const Text('Automezzi'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => provider.fetchAutomezzi(),
+                )
+              ],
+            )
+          : null,
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : provider.errorMessage != null

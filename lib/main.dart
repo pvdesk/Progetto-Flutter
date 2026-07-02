@@ -14,6 +14,8 @@ import 'providers/config_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/automezzi_provider.dart';
 import 'services/automezzi_service.dart';
+import 'providers/attrezzature_provider.dart';
+import 'services/attrezzature_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -151,6 +153,9 @@ void main() async {
         ),
         ChangeNotifierProvider<AutomezziProvider>(
           create: (_) => AutomezziProvider(AutomezziService(apiService)),
+        ),
+        ChangeNotifierProvider<AttrezzatureProvider>(
+          create: (_) => AttrezzatureProvider(AttrezzatureService(apiService)),
         ),
       ],
       child: const MyApp(),

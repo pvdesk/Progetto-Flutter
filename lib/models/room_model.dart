@@ -1,5 +1,5 @@
 class RoomModel {
-  final int id;
+  final String id;
   final String nome;
   final String? indirizzo;
 
@@ -11,7 +11,7 @@ class RoomModel {
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     return RoomModel(
-      id: json['id'] as int,
+      id: json['id']?.toString() ?? '',
       nome: json['nome'] as String? ?? 'Stanza senza nome',
       indirizzo: json['indirizzo'] as String?,
     );

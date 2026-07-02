@@ -7,7 +7,7 @@ import 'contacts_screen.dart';
 import 'documents_screen.dart';
 import 'notifications_screen.dart';
 import 'ferie_screen.dart';
-import 'automezzi_screen.dart';
+import 'manutenzioni_hub_screen.dart';
 import '../providers/auth_provider.dart';
 
 class MainShellScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     const DocumentsScreen(),
     FerieScreen(),
     const NotificationsScreen(),
-    const AutomezziScreen(),
+    const ManutenzioniHubScreen(),
   ];
 
   @override
@@ -148,15 +148,15 @@ class _MainShellScreenState extends State<MainShellScreen> {
               label: 'Notifiche',
             ),
 
-            // Voce Automezzi (condizionale)
-            if (['responsabile_manutenzione', 'responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni']
+            // Voce Manutenzioni (condizionale, unificata)
+            if (['responsabile_manutenzione', 'responsabile_manutenzioni', 'addetto manutenzioni', 'manutenzioni automezzi', 'manutenzioni', 'manutentore']
                 .contains(context.watch<AuthProvider>().currentUser?.ruolo.toLowerCase()))
               const BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.only(bottom: 4.0),
-                  child: Icon(Icons.local_shipping_rounded),
+                  child: Icon(Icons.build_rounded),
                 ),
-                label: 'Automezzi',
+                label: 'Manutenzioni',
               ),
           ],
         ),
