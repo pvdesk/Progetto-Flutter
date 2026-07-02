@@ -58,7 +58,6 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
     final latestVersion = updateData['latest_version'] as String? ?? '1.0.0';
     final minVersion = updateData['min_version'] as String? ?? '1.0.0';
     final downloadPageUrl = updateData['download_page_url'] as String? ?? '';
-    final apkUrl = updateData['apk_url'] as String? ?? '';
     final playStoreUrl = updateData['play_store_url'] as String? ?? '';
     final appStoreUrl = updateData['app_store_url'] as String? ?? '';
 
@@ -133,17 +132,7 @@ class _UpdateCheckerWrapperState extends State<UpdateCheckerWrapper> {
                   ),
                 ),
               
-              if (showAndroidApk)
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B35),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () => _launchUrl(apkUrl),
-                  icon: const Icon(Icons.download_rounded, size: 18),
-                  label: const Text('Scarica APK'),
-                ),
+
 
               if (showAndroidPlay)
                 ElevatedButton.icon(

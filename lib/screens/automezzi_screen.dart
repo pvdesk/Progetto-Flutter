@@ -72,12 +72,11 @@ class _AutomezziScreenState extends State<AutomezziScreen> {
                     final success = await context.read<AutomezziProvider>().registerIntervento(
                       auto.id, dataController.text, descController.text, costo
                     );
+                    if (!context.mounted) return;
                     Navigator.pop(ctx);
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Intervento registrato con successo!')));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Errore durante il salvataggio')));
-                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(success ? 'Intervento registrato con successo!' : 'Errore durante il salvataggio')),
+                    );
                   },
                   child: const Text('Salva Intervento'),
                 ),
@@ -138,12 +137,11 @@ class _AutomezziScreenState extends State<AutomezziScreen> {
                         'data_tagliando': tagController.text.isNotEmpty ? tagController.text : null,
                       }
                     );
+                    if (!context.mounted) return;
                     Navigator.pop(ctx);
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scadenze aggiornate!')));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Errore durante l\'aggiornamento')));
-                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(success ? 'Scadenze aggiornate!' : 'Errore durante l\'aggiornamento')),
+                    );
                   },
                   child: const Text('Aggiorna'),
                 ),
@@ -209,7 +207,7 @@ class _AutomezziScreenState extends State<AutomezziScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withOpacity(0.1),
+                                    color: Colors.blueAccent.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(color: Colors.blueAccent),
                                   ),

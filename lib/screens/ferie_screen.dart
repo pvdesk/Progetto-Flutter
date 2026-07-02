@@ -6,8 +6,10 @@ import '../services/ferie_service.dart';
 import 'richiesta_ferie_screen.dart';
 
 class FerieScreen extends StatefulWidget {
+  const FerieScreen({super.key});
+
   @override
-  _FerieScreenState createState() => _FerieScreenState();
+  State<FerieScreen> createState() => _FerieScreenState();
 }
 
 class _FerieScreenState extends State<FerieScreen> {
@@ -96,12 +98,14 @@ class _FerieScreenState extends State<FerieScreen> {
                           setModalState(() => isSubmitting = true);
                           try {
                             await _ferieService.verificaOtp(id, otpController.text);
+                            if (!context.mounted) return;
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Richiesta firmata con successo!')),
+                              const SnackBar(content: Text('Richiesta firmata con successo!')),
                             );
                             _loadStorico();
                           } catch (e) {
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(e.toString())),
                             );
@@ -225,7 +229,7 @@ class _FerieScreenState extends State<FerieScreen> {
                                       ),
                                     ],
                                   ),
-                                )).toList(),
+                                ),),
                                 if (stato == 'in_attesa_otp') ...[
                                   SizedBox(height: 16),
                                   SizedBox(

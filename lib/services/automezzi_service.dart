@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../models/automezzo_model.dart';
 import 'api_service.dart';
 import 'remote_logger.dart';

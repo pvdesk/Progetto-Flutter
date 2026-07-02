@@ -755,7 +755,7 @@ class _UploadDocumentBottomSheetState extends State<UploadDocumentBottomSheet> {
 
               // Categoria / Tipo
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 style: const TextStyle(color: Colors.white),
                 dropdownColor: const Color(0xFF1E293B),
                 decoration: InputDecoration(

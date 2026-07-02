@@ -30,7 +30,7 @@ class NotificationProvider extends ChangeNotifier {
       final data = response.data as Map<String, dynamic>;
       
       _notificationData = NotificationData.fromJson(data);
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       _errorMessage = 'Errore di rete durante il caricamento delle notifiche.';
     } catch (_) {
       _errorMessage = 'Impossibile caricare le notifiche.';

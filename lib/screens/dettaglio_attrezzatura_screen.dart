@@ -182,8 +182,8 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                           documento: selectedFile,
                         );
 
-                        if (success) {
-                          if (!mounted) return;
+                         if (success) {
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Intervento registrato con successo!'),
@@ -191,7 +191,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                             ),
                           );
                         } else {
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(provider.errorMessage ?? 'Errore nel salvataggio dell\'intervento.'),
@@ -322,7 +322,7 @@ class _DettaglioAttrezzaturaScreenState extends State<DettaglioAttrezzaturaScree
                                     Expanded(
                                       child: Text(
                                         att.commessaNome != null
-                                            ? 'Commessa: ${att.commessaNome}' + (att.puntoServizioNome != null ? '\nLocazione: ${att.puntoServizioNome}' : '')
+                                            ? 'Commessa: ${att.commessaNome}${att.puntoServizioNome != null ? '\nLocazione: ${att.puntoServizioNome}' : ''}'
                                             : att.centroProduttivoNome != null
                                                 ? 'Centro Cottura: ${att.centroProduttivoNome}'
                                                 : 'Nessuna collocazione (Magazzino / Non allocato)',

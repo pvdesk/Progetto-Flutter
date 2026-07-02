@@ -156,7 +156,7 @@ class _MappaturaAttrezzaturaScreenState extends State<MappaturaAttrezzaturaScree
                         labelText: 'Tipologia Macchinario *',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedTipoId,
+                      initialValue: _selectedTipoId,
                       items: provider.tipi.map((TipoAttrezzatura t) {
                         return DropdownMenuItem<int>(
                           value: t.id,
@@ -229,7 +229,7 @@ class _MappaturaAttrezzaturaScreenState extends State<MappaturaAttrezzaturaScree
                         labelText: 'Destinazione Principale',
                         border: OutlineInputBorder(),
                       ),
-                      value: _destinazione,
+                      initialValue: _destinazione,
                       items: const [
                         DropdownMenuItem(value: 'nessuna', child: Text('Nessuna (Magazzino)')),
                         DropdownMenuItem(value: 'commessa', child: Text('Commessa / Punto Servizio')),
@@ -250,7 +250,7 @@ class _MappaturaAttrezzaturaScreenState extends State<MappaturaAttrezzaturaScree
                           labelText: 'Seleziona Commessa *',
                           border: OutlineInputBorder(),
                         ),
-                        value: _selectedCommessaId,
+                        initialValue: _selectedCommessaId,
                         items: provider.commesse.map((c) {
                           return DropdownMenuItem<int>(
                             value: c['id'],
@@ -273,7 +273,7 @@ class _MappaturaAttrezzaturaScreenState extends State<MappaturaAttrezzaturaScree
                           labelText: 'Punto Servizio (Cucina/Mensa)',
                           border: OutlineInputBorder(),
                         ),
-                        value: _selectedPuntoId,
+                        initialValue: _selectedPuntoId,
                         items: filteredPunti.map((p) {
                           return DropdownMenuItem<int>(
                             value: p['id'],
@@ -296,7 +296,7 @@ class _MappaturaAttrezzaturaScreenState extends State<MappaturaAttrezzaturaScree
                           labelText: 'Seleziona Centro Cottura *',
                           border: OutlineInputBorder(),
                         ),
-                        value: _selectedCentroId,
+                        initialValue: _selectedCentroId,
                         items: provider.centriCottura.map((cc) {
                           return DropdownMenuItem<int>(
                             value: cc['id'],

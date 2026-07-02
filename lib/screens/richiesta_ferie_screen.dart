@@ -107,7 +107,7 @@ class _RichiestaFerieScreenState extends State<RichiestaFerieScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final res = await widget.ferieService.richiediFerie(formattedPeriodi, _noteController.text);
+      await widget.ferieService.richiediFerie(formattedPeriodi, _noteController.text);
       if (!mounted) return;
       /*
       if (res['debug_otp'] != null) {
