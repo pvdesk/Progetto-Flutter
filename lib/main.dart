@@ -15,6 +15,8 @@ import 'providers/automezzi_provider.dart';
 import 'services/automezzi_service.dart';
 import 'providers/attrezzature_provider.dart';
 import 'services/attrezzature_service.dart';
+import 'providers/ddt_provider.dart';
+import 'services/ddt_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
@@ -149,6 +151,9 @@ void main() async {
         ),
         ChangeNotifierProvider<NotificationProvider>(
           create: (_) => NotificationProvider(apiService),
+        ),
+        ChangeNotifierProvider<DdtProvider>(
+          create: (_) => DdtProvider(DdtService(apiService)),
         ),
         ChangeNotifierProvider<AutomezziProvider>(
           create: (_) => AutomezziProvider(AutomezziService(apiService)),

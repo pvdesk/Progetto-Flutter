@@ -54,4 +54,21 @@ class FerieService {
       throw Exception('Errore durante la verifica OTP: $e');
     }
   }
+
+  Future<void> resendOtp(int richiestaId) async {
+    try {
+      final response = await apiService.dio.post(
+        '/api/ferie/$richiestaId/resend-otp',
+      );
+      if (response.data['success'] != true) {
+        throw Exception('Impossibile reinviare OTP');
+      }
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      final detail = (body is Map) ? (body['detail'] ?? body['error'] ?? body['message']) : null;
+      throw Exception('Errore: ${detail ?? e.message}');
+    } catch (e) {
+      throw Exception('Errore durante il reinvio OTP: $e');
+    }
+  }
 }

@@ -8,7 +8,9 @@ import 'documents_screen.dart';
 import 'notifications_screen.dart';
 import 'ferie_screen.dart';
 import 'manutenzioni_hub_screen.dart';
+import 'ddt_list_screen.dart';
 import '../providers/auth_provider.dart';
+import '../providers/ddt_provider.dart';
 
 class MainShellScreen extends StatefulWidget {
   final int initialTab;
@@ -30,6 +32,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       context.read<ChatProvider>().fetchUnreadCount();
       context.read<DocumentProvider>().fetchDocuments();
       context.read<NotificationProvider>().fetchUnread();
+      context.read<DdtProvider>().fetchAssignedDdt();
     });
   }
 
@@ -52,8 +55,10 @@ class _MainShellScreenState extends State<MainShellScreen> {
     final documentProvider = context.watch<DocumentProvider>();
     final notificationProvider = context.watch<NotificationProvider>();
     final authProvider = context.watch<AuthProvider>();
+    final ddtProvider = context.watch<DdtProvider>();
 
     final bool showManutenzioni = _isManutenzione(authProvider.currentUser?.ruolo);
+    final bool showDdt = ddtProvider.ddts.isNotEmpty;
 
     // Costruiamo le liste dinamicamente in base al ruolo
     final List<Widget> screens = [
@@ -62,6 +67,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       FerieScreen(),
       const NotificationsScreen(),
       if (showManutenzioni) const ManutenzioniHubScreen(),
+      if (showDdt) const DdtListScreen(),
     ];
 
     final List<BottomNavigationBarItem> navItems = [
@@ -134,6 +140,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
           ),
           label: 'Manutenzioni',
         ),
+
+      // Voce DDT
+      if (showDdt)
+        const BottomNavigationBarItem(
+          icon: Padding(
+            padding: EdgeInsets.only(bottom: 4.0),
+            child: Icon(Icons.local_shipping_rounded),
+          ),
+          label: 'Trasporti',
+        ),
     ];
 
     // Assicura che _currentIndex sia nel range valido
@@ -172,6 +188,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
             } else if (index == 3) {
               context.read<NotificationProvider>().fetchUnread();
             }
+            // per gli altri index (Manutenzioni, Trasporti), i widget interni ricaricheranno i propri dati se necessario.
           },
           backgroundColor: const Color(0xFF1E293B),
           selectedItemColor: Theme.of(context).primaryColor,
