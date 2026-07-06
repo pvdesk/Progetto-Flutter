@@ -105,6 +105,7 @@ class _DdtDetailScreenState extends State<DdtDetailScreen> {
       }
       final base64Signature = base64Encode(signatureBytes);
 
+      if (!mounted) return;
       await context.read<DdtProvider>().inviaFirma(
         widget.ddtId,
         _selectedRole,
@@ -223,7 +224,7 @@ class _DdtDetailScreenState extends State<DdtDetailScreen> {
                     const Text('Acquisisci Firma a monitor', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: _selectedRole,
+                      initialValue: _selectedRole,
                       items: const [
                         DropdownMenuItem(value: 'autista', child: Text('Autista')),
                         DropdownMenuItem(value: 'ricevente', child: Text('Ricevente')),

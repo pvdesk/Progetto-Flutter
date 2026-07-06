@@ -387,9 +387,21 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
               });
             },
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF0075A2),
+              backgroundColor: room.id.startsWith('ar_')
+                  ? Colors.deepOrangeAccent
+                  : room.id.startsWith('cg_')
+                      ? Colors.deepPurpleAccent
+                      : const Color(0xFF0075A2),
               radius: 22,
-              child: const Icon(Icons.group, color: Colors.white, size: 20),
+              child: Icon(
+                room.id.startsWith('ar_')
+                    ? Icons.map
+                    : room.id.startsWith('cg_')
+                        ? Icons.account_balance
+                        : Icons.group,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
             title: Text(
               room.nome,

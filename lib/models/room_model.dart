@@ -13,7 +13,7 @@ class RoomModel {
     return RoomModel(
       id: json['id']?.toString() ?? '',
       nome: json['nome'] as String? ?? 'Stanza senza nome',
-      indirizzo: json['indirizzo'] as String?,
+      indirizzo: json['indirizzo'] as String? ?? json['descrizione'] as String?,
     );
   }
 
