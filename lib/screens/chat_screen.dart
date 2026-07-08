@@ -5,11 +5,13 @@ import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 import '../models/contact_model.dart';
 import '../models/message_model.dart';
+import '../widgets/responsive_center.dart';
 
 class ChatScreen extends StatefulWidget {
   final ContactModel contact;
+  final bool embedded; // true quando è nel pannello destro del layout tablet
 
-  const ChatScreen({super.key, required this.contact});
+  const ChatScreen({super.key, required this.contact, this.embedded = false});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -88,11 +90,14 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E293B),
         elevation: 1,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        titleSpacing: widget.embedded ? 12 : 0,
+        automaticallyImplyLeading: false,
+        leading: widget.embedded
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
         title: Row(
           children: [
             CircleAvatar(
@@ -122,7 +127,8 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-      body: Column(
+      body: ResponsiveCenter(
+        child: Column(
         children: [
           // Area dei messaggi
           Expanded(
@@ -155,8 +161,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: Container(
                               margin: const EdgeInsets.symmetric(vertical: 4),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.75,
+                              constraints: const BoxConstraints(
+                                maxWidth: 520,
                               ),
                               decoration: BoxDecoration(
                                 color: isMe ? Theme.of(context).primaryColor : const Color(0xFF1E293B),
@@ -255,6 +261,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import '../utils/web_utils.dart';
 
 import '../providers/document_provider.dart';
 import '../models/document_model.dart';
+import '../widgets/responsive_card_grid.dart';
 import '../services/api_service.dart';
 
 class ArchiveDocumentsScreen extends StatefulWidget {
@@ -231,7 +232,7 @@ class _ArchiveDocumentsScreenState extends State<ArchiveDocumentsScreen> with Si
     return RefreshIndicator(
       color: Theme.of(context).primaryColor,
       onRefresh: () => documentProvider.fetchDocuments(),
-      child: ListView.builder(
+      child: ResponsiveCardGrid(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         itemCount: docs.length,
         itemBuilder: (context, index) {

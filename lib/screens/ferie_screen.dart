@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/ferie_service.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'richiesta_ferie_screen.dart';
 
 class FerieScreen extends StatefulWidget {
@@ -95,10 +96,11 @@ class _FerieScreenState extends State<FerieScreen> {
               ? Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red)))
               : Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
+                    constraints: const BoxConstraints(maxWidth: 1200),
                     child: _richieste.isEmpty
                         ? Center(child: Text('Nessuna richiesta ferie passata.'))
-                        : ListView.builder(
+                        : ResponsiveCardGrid(
+                            minColWidth: 520,
                             itemCount: _richieste.length,
                             itemBuilder: (context, index) {
                               final req = _richieste[index];

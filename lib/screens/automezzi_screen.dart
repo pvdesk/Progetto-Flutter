@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/automezzi_provider.dart';
 import '../models/automezzo_model.dart';
+import '../widgets/responsive_card_grid.dart';
 
 class AutomezziScreen extends StatefulWidget {
   final bool showAppBar;
@@ -187,7 +188,7 @@ class _AutomezziScreenState extends State<AutomezziScreen> {
           ? const Center(child: CircularProgressIndicator())
           : provider.errorMessage != null
               ? Center(child: Text(provider.errorMessage!, style: const TextStyle(color: Colors.red)))
-              : ListView.builder(
+              : ResponsiveCardGrid(
                   padding: const EdgeInsets.all(8.0),
                   itemCount: provider.automezzi.length,
                   itemBuilder: (context, index) {

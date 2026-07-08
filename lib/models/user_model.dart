@@ -7,6 +7,7 @@ class UserModel {
   final String ruoloEtichetta;
   final bool privacyAccettata;
   final bool attivoChatEnabled;
+  final bool isHaccpPreposto;
   final String? apiToken; // Bearer token per autenticazione API mobile
 
   UserModel({
@@ -18,6 +19,7 @@ class UserModel {
     required this.ruoloEtichetta,
     required this.privacyAccettata,
     this.attivoChatEnabled = true,
+    this.isHaccpPreposto = false,
     this.apiToken,
   });
 
@@ -31,6 +33,7 @@ class UserModel {
       ruoloEtichetta: json['ruolo_etichetta'] as String? ?? 'Operatore',
       privacyAccettata: json['privacy_accettata'] as bool? ?? false,
       attivoChatEnabled: json['attivo_chat'] as bool? ?? true,
+      isHaccpPreposto: json['is_haccp_preposto'] as bool? ?? false,
       apiToken: json['api_token'] as String?,
     );
   }
@@ -45,6 +48,7 @@ class UserModel {
       'ruolo_etichetta': ruoloEtichetta,
       'privacy_accettata': privacyAccettata,
       'attivo_chat': attivoChatEnabled,
+      'is_haccp_preposto': isHaccpPreposto,
       if (apiToken != null) 'api_token': apiToken,
     };
   }
@@ -58,6 +62,7 @@ class UserModel {
     String? ruoloEtichetta,
     bool? privacyAccettata,
     bool? attivoChatEnabled,
+    bool? isHaccpPreposto,
     String? apiToken,
   }) {
     return UserModel(
@@ -69,6 +74,7 @@ class UserModel {
       ruoloEtichetta: ruoloEtichetta ?? this.ruoloEtichetta,
       privacyAccettata: privacyAccettata ?? this.privacyAccettata,
       attivoChatEnabled: attivoChatEnabled ?? this.attivoChatEnabled,
+      isHaccpPreposto: isHaccpPreposto ?? this.isHaccpPreposto,
       apiToken: apiToken ?? this.apiToken,
     );
   }

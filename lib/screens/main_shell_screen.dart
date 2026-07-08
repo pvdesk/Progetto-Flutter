@@ -11,6 +11,7 @@ import 'manutenzioni_hub_screen.dart';
 import 'ddt_list_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/ddt_provider.dart';
+import 'haccp/haccp_list_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   final int initialTab;
@@ -59,6 +60,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
     final bool showManutenzioni = _isManutenzione(authProvider.currentUser?.ruolo);
     final bool showDdt = ddtProvider.ddts.isNotEmpty;
+    final bool showHaccp = authProvider.currentUser?.isHaccpPreposto ?? false;
 
     // Costruiamo le liste dinamicamente in base al ruolo
     final List<Widget> screens = [
@@ -68,6 +70,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       const NotificationsScreen(),
       if (showManutenzioni) const ManutenzioniHubScreen(),
       if (showDdt) const DdtListScreen(),
+      if (showHaccp) const HaccpListScreen(),
     ];
 
     final List<BottomNavigationBarItem> navItems = [
@@ -149,6 +152,16 @@ class _MainShellScreenState extends State<MainShellScreen> {
             child: Icon(Icons.local_shipping_rounded),
           ),
           label: 'Trasporti',
+        ),
+
+      // Voce HACCP
+      if (showHaccp)
+        const BottomNavigationBarItem(
+          icon: Padding(
+            padding: EdgeInsets.only(bottom: 4.0),
+            child: Icon(Icons.fact_check_rounded),
+          ),
+          label: 'HACCP',
         ),
     ];
 

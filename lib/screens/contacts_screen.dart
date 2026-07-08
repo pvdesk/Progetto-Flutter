@@ -21,6 +21,89 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
+  // Selezione per il layout tablet a due pannelli (lista + chat affiancate).
+  ContactModel? _selectedContact;
+  RoomModel? _selectedRoom;
+
+  /// true su schermi larghi (tablet in orizzontale): mostra lista + chat affiancate.
+  bool _twoPane() => MediaQuery.of(context).size.width >= 800;
+
+  /// Su tablet apre la chat nel pannello destro; su telefono naviga a schermo pieno.
+  void _apriContatto(ContactModel contact, ChatProvider chatProvider) {
+    if (_twoPane()) {
+      setState(() {
+        _selectedContact = contact;
+        _selectedRoom = null;
+      });
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ChatScreen(contact: contact)),
+      ).then((_) => chatProvider.fetchContacts());
+    }
+  }
+
+  void _apriStanza(RoomModel room, ChatProvider chatProvider) {
+    if (_twoPane()) {
+      setState(() {
+        _selectedRoom = room;
+        _selectedContact = null;
+      });
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GroupChatScreen(room: room)),
+      ).then((_) => chatProvider.fetchRooms());
+    }
+  }
+
+  /// Pannello destro (tablet): chat selezionata o placeholder.
+  Widget _buildDetailPane() {
+    if (_selectedContact != null) {
+      return ChatScreen(
+        key: ValueKey('c_${_selectedContact!.id}'),
+        contact: _selectedContact!,
+        embedded: true,
+      );
+    }
+    if (_selectedRoom != null) {
+      return GroupChatScreen(
+        key: ValueKey('r_${_selectedRoom!.id}'),
+        room: _selectedRoom!,
+        embedded: true,
+      );
+    }
+    return Container(
+      color: const Color(0xFF0F172A),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.forum_outlined, size: 72, color: Colors.white.withValues(alpha: 0.15)),
+            const SizedBox(height: 16),
+            Text(
+              'Seleziona una conversazione',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Su tablet affianca la lista (larghezza fissa) alla chat; su telefono la lista a pieno schermo.
+  Widget _wrapTablet(Widget listColumn) {
+    if (!_twoPane()) return listColumn;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(width: 360, child: listColumn),
+        VerticalDivider(width: 1, thickness: 1, color: Colors.white.withValues(alpha: 0.06)),
+        Expanded(child: _buildDetailPane()),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -129,7 +212,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
           ),
         ],
       ),
-      body: Column(
+      body: _wrapTablet(Column(
         children: [
           if (currentUser != null)
             Container(
@@ -212,7 +295,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
@@ -264,18 +347,12 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
           final ContactModel contact = filteredContacts[index];
           final roleColor = _getRoleColor(contact.ruolo);
 
+          final bool selezionato = _twoPane() && _selectedContact?.id == contact.id;
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(contact: contact),
-                ),
-              ).then((_) {
-                chatProvider.fetchContacts();
-              });
-            },
+            selected: selezionato,
+            selectedTileColor: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+            onTap: () => _apriContatto(contact, chatProvider),
             leading: Badge(
               isLabelVisible: contact.unreadCount > 0,
               label: Text(
@@ -374,18 +451,12 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
         itemBuilder: (context, index) {
           final RoomModel room = filteredRooms[index];
 
+          final bool selezionato = _twoPane() && _selectedRoom?.id == room.id;
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GroupChatScreen(room: room),
-                ),
-              ).then((_) {
-                chatProvider.fetchRooms();
-              });
-            },
+            selected: selezionato,
+            selectedTileColor: Theme.of(context).primaryColor.withValues(alpha: 0.12),
+            onTap: () => _apriStanza(room, chatProvider),
             leading: CircleAvatar(
               backgroundColor: room.id.startsWith('ar_')
                   ? Colors.deepOrangeAccent
