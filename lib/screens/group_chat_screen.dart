@@ -208,43 +208,46 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                         },
                       ),
           ),
-          Container(
-            padding: const EdgeInsets.only(left: 12, right: 12, bottom: 20, top: 8),
-            color: const Color(0xFF1E293B),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.04),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      style: const TextStyle(color: Colors.white),
-                      textCapitalization: TextCapitalization.sentences,
-                      maxLines: null,
-                      decoration: const InputDecoration(
-                        hintText: 'Scrivi al gruppo...',
-                        hintStyle: TextStyle(color: Colors.white30),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        border: InputBorder.none,
+          SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8, top: 8),
+              color: const Color(0xFF1E293B),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
                       ),
-                      onSubmitted: (_) => _send(),
+                      child: TextField(
+                        controller: _messageController,
+                        style: const TextStyle(color: Colors.white),
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                          hintText: 'Scrivi al gruppo...',
+                          hintStyle: TextStyle(color: Colors.white30),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (_) => _send(),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  radius: 22,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                    onPressed: _send,
+                  const SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    radius: 22,
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                      onPressed: _send,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
