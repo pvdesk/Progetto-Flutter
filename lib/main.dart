@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -45,11 +47,17 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
   enableLights: true,
 );
 
+/// FCM/Firebase e i badge icona sono supportati solo su mobile (Android/iOS).
+/// Su desktop (Windows/macOS) vanno saltati, altrimenti l'app non si avvia.
+final bool isMobilePlatform = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inizializza Firebase
-  await Firebase.initializeApp();
+  // Inizializza Firebase (solo mobile)
+  if (isMobilePlatform) {
+    await Firebase.initializeApp();
+  }
 
   // Inizializza Flutter Local Notifications e crea il canale per Android
   await flutterLocalNotificationsPlugin
@@ -75,6 +83,8 @@ void main() async {
     },
   );
 
+  // Handler FCM + badge icona: solo su mobile.
+  if (isMobilePlatform) {
   // Registra handler per messaggi quando app è in background o terminata
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -122,6 +132,7 @@ void main() async {
       }
     });
   });
+  } // fine blocco FCM/badge (solo mobile)
 
   final apiService = ApiService();
   await apiService.init();
@@ -179,14 +190,17 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _setupNotificationNavigation();
-    
-    // Rimuovi il badge quando l'app viene aperta
-    AppBadgePlus.isSupported().then((isSupported) {
-      if (isSupported) {
-        AppBadgePlus.updateBadge(0);
-      }
-    });
+    // FCM e badge icona solo su mobile.
+    if (isMobilePlatform) {
+      _setupNotificationNavigation();
+
+      // Rimuovi il badge quando l'app viene aperta
+      AppBadgePlus.isSupported().then((isSupported) {
+        if (isSupported) {
+          AppBadgePlus.updateBadge(0);
+        }
+      });
+    }
   }
 
   /// Gestisce la navigazione quando l'utente tocca una notifica FCM.

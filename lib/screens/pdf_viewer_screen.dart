@@ -37,6 +37,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             fitPolicy: FitPolicy.BOTH,
             preventLinkNavigation: false,
             onRender: (numPages) {
+              if (!mounted) return;
               setState(() {
                 pages = numPages;
                 isReady = true;

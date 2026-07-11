@@ -435,7 +435,7 @@ class _OtpDialogState extends State<_OtpDialog> {
     }
     setState(() => _isSubmitting = true);
     try {
-      await widget.ferieService.verificaOtp(widget.richiestaId, _otpController.text);
+      await widget.ferieService.verificaOtp(widget.richiestaId, otp: _otpController.text);
       if (!mounted) return;
       widget.onSuccess();
     } catch (e) {

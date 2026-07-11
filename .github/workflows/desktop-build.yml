@@ -1,0 +1,74 @@
+name: Build Desktop (Windows + macOS)
+
+# Compila l'app per Windows e macOS e, quando parte da una release pubblicata,
+# allega i binari come asset della release: la pagina di download di app_gestione
+# li rileva automaticamente (cerca gli asset con "win…/.exe" e "mac…/.dmg/.zip").
+on:
+  release:
+    types: [published]
+  workflow_dispatch:      # avvio manuale per test (produce solo gli artifact)
+
+jobs:
+  # ── Windows ────────────────────────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter config --enable-windows-desktop
+      - run: flutter pub get
+      - run: flutter build windows --release
+
+      - name: Pacchettizza (zip)
+        shell: pwsh
+        run: |
+          $dir = "build/windows/x64/runner/Release"
+          if (-not (Test-Path $dir)) { $dir = "build/windows/runner/Release" }  # Flutter più vecchi
+          Compress-Archive -Path "$dir/*" -DestinationPath "INTHEGRA-windows.zip" -Force
+
+      - name: Allega alla release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: INTHEGRA-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: INTHEGRA-windows
+          path: INTHEGRA-windows.zip
+
+  # ── macOS (compilabile SOLO su runner macOS) ───────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter config --enable-macos-desktop
+      - run: flutter pub get
+      - run: flutter build macos --release
+
+      - name: Pacchettizza (zip dell'.app)
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r -y "$GITHUB_WORKSPACE/INTHEGRA-macos.zip" *.app
+
+      - name: Allega alla release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: INTHEGRA-macos.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: INTHEGRA-macos
+          path: INTHEGRA-macos.zip

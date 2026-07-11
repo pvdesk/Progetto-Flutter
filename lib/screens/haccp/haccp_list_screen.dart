@@ -34,6 +34,7 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
       _selezionati.clear();
     });
     final data = await _haccpService.getFirmeDaApporre();
+    if (!mounted) return;
     setState(() {
       _blocchi = data;
       _isLoading = false;
@@ -102,6 +103,7 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
         result['device'] ?? 'Sconosciuto',
       );
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
