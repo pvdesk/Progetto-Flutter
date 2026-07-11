@@ -6,9 +6,12 @@ class FerieService {
 
   FerieService(this.apiService);
 
-  Future<List<dynamic>> fetchStoricoFerie() async {
+  Future<List<dynamic>> fetchStoricoFerie({bool archivio = false}) async {
     try {
-      final response = await apiService.dio.get('/api/ferie');
+      final response = await apiService.dio.get(
+        '/api/ferie',
+        queryParameters: {'archivio': archivio ? 1 : 0},
+      );
       final data = response.data;
       if (data is Map && data['data'] is List) return data['data'];
       if (data is List) return data;
@@ -41,11 +44,16 @@ class FerieService {
     }
   }
 
-  Future<void> verificaOtp(int richiestaId, String otp) async {
+  Future<void> verificaOtp(int richiestaId, {String? otp, String? signatureBase64, String? deviceInfo}) async {
     try {
+      final Map<String, dynamic> data = {};
+      if (otp != null && otp.isNotEmpty) data['otp'] = otp;
+      if (signatureBase64 != null) data['signature_base64'] = signatureBase64;
+      if (deviceInfo != null) data['device_info'] = deviceInfo;
+
       await apiService.dio.post(
         '/api/ferie/$richiestaId/verify-otp',
-        data: {'otp': otp},
+        data: data,
       );
     } catch (e) {
       if (e is DioException && e.response?.statusCode == 400) {
@@ -69,6 +77,18 @@ class FerieService {
       throw Exception('Errore: ${detail ?? e.message}');
     } catch (e) {
       throw Exception('Errore durante il reinvio OTP: $e');
+    }
+  }
+
+  Future<void> deleteRichiesta(int richiestaId) async {
+    try {
+      await apiService.dio.delete('/api/ferie/$richiestaId');
+    } on DioException catch (e) {
+      final body = e.response?.data;
+      final detail = (body is Map) ? (body['detail'] ?? body['error'] ?? body['message']) : null;
+      throw Exception('Errore: ${detail ?? e.message}');
+    } catch (e) {
+      throw Exception('Errore durante l\'eliminazione della richiesta: $e');
     }
   }
 }

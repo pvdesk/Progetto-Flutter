@@ -139,4 +139,32 @@ class DocumentProvider extends ChangeNotifier {
     notifyListeners();
     return false;
   }
+
+  // Elimina un documento inviato non ancora processato
+  Future<bool> deleteDocument(int documentId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await apiService.dio.delete('api/mobile/documenti/$documentId');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        _documents.removeWhere((d) => d.id == documentId);
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = data['message'] as String? ?? 'Errore durante l\'eliminazione.';
+      }
+    } on DioException catch (e) {
+      _errorMessage = e.response?.data?['message'] ?? 'Errore di rete durante l\'eliminazione.';
+    } catch (_) {
+      _errorMessage = 'Impossibile eliminare il documento.';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
+  }
 }

@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/ferie_service.dart';
 import '../widgets/responsive_card_grid.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'richiesta_ferie_screen.dart';
+import 'haccp/signature_dialog.dart';
 
 class FerieScreen extends StatefulWidget {
   const FerieScreen({super.key});
@@ -18,6 +20,7 @@ class _FerieScreenState extends State<FerieScreen> {
   List<dynamic> _richieste = [];
   bool _isLoading = true;
   String _errorMessage = '';
+  bool _isArchivio = false;
 
   @override
   void initState() {
@@ -33,7 +36,7 @@ class _FerieScreenState extends State<FerieScreen> {
       _errorMessage = '';
     });
     try {
-      final data = await _ferieService.fetchStoricoFerie();
+      final data = await _ferieService.fetchStoricoFerie(archivio: _isArchivio);
       setState(() {
         _richieste = data;
         _isLoading = false;
@@ -66,6 +69,96 @@ class _FerieScreenState extends State<FerieScreen> {
     );
   }
 
+  void _mostraSceltaFirma(int id) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.password),
+                title: Text('Firma con OTP'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _apriFirmaOtp(id);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.draw),
+                title: Text('Firma olografa (su schermo)'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final result = await showDialog(
+                    context: context,
+                    builder: (_) => const SignatureDialog(),
+                  );
+                  if (result != null && result is Map) {
+                    _firmaOlografa(id, result['firma'], result['device']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _firmaOlografa(int id, String base64Signature, String deviceInfo) async {
+    setState(() => _isLoading = true);
+    try {
+      await _ferieService.verificaOtp(id, signatureBase64: base64Signature, deviceInfo: deviceInfo);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Richiesta firmata con successo!')),
+      );
+      _loadStorico();
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _eliminaRichiesta(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Elimina Richiesta'),
+        content: const Text('Sei sicuro di voler eliminare questa richiesta? L\'azione è irreversibile.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annulla'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Elimina'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await _ferieService.deleteRichiesta(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Richiesta eliminata')),
+      );
+      _loadStorico();
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   String _formatDateString(dynamic dateValue) {
     if (dateValue == null) return '';
     final String dateStr = dateValue.toString();
@@ -89,6 +182,33 @@ class _FerieScreenState extends State<FerieScreen> {
             onPressed: _loadStorico,
           )
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment<bool>(
+                  value: false,
+                  label: Text('Attive'),
+                  icon: Icon(Icons.list),
+                ),
+                ButtonSegment<bool>(
+                  value: true,
+                  label: Text('Archivio'),
+                  icon: Icon(Icons.archive),
+                ),
+              ],
+              selected: {_isArchivio},
+              onSelectionChanged: (Set<bool> newSelection) {
+                setState(() {
+                  _isArchivio = newSelection.first;
+                });
+                _loadStorico();
+              },
+            ),
+          ),
+        ),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -178,14 +298,23 @@ class _FerieScreenState extends State<FerieScreen> {
                                       ),),
                                       if (stato == 'in_attesa_otp') ...[
                                         SizedBox(height: 16),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: ElevatedButton.icon(
-                                            onPressed: () => _apriFirmaOtp(id),
-                                            icon: Icon(Icons.edit),
-                                            label: Text('Firma con OTP'),
-                                            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                                          ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton.icon(
+                                                onPressed: () => _mostraSceltaFirma(id),
+                                                icon: Icon(Icons.edit),
+                                                label: Text('Firma Richiesta'),
+                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            IconButton(
+                                              onPressed: () => _eliminaRichiesta(id),
+                                              icon: const Icon(Icons.delete, color: Colors.red),
+                                              tooltip: 'Elimina richiesta',
+                                            ),
+                                          ],
                                         ),
                                       ]
                                     ],

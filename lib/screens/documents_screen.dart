@@ -143,6 +143,48 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
     }
   }
 
+  void _deleteDocument(BuildContext context, DocumentModel doc) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text('Elimina Documento', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Sei sicuro di voler eliminare questo documento?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annulla', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Elimina', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    if (!context.mounted) return;
+    final success = await context.read<DocumentProvider>().deleteDocument(doc.id);
+
+    if (!context.mounted) return;
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Documento eliminato.'), backgroundColor: Colors.green),
+      );
+    } else {
+      final errorMsg = context.read<DocumentProvider>().errorMessage ?? 'Impossibile eliminare il documento.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg), backgroundColor: Colors.redAccent),
+      );
+    }
+  }
+
   void _showUploadDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -574,6 +616,19 @@ class _DocumentsScreenState extends State<DocumentsScreen> with SingleTickerProv
                           ],
                         ),
                         const Spacer(),
+                      ],
+                      if (!isReceived) ...[
+                        OutlinedButton.icon(
+                          onPressed: () => _deleteDocument(context, doc),
+                          icon: const Icon(Icons.delete_outline, size: 16, color: Colors.redAccent),
+                          label: const Text('Elimina', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.redAccent),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                       ],
                       // Tasto scarica
                       ElevatedButton.icon(
