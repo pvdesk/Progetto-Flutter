@@ -53,10 +53,21 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     if (text.isEmpty) return;
 
     _messageController.clear();
-    final success = await context.read<ChatProvider>().sendRoomMessage(widget.room.id, text);
-    
+    final chatProvider = context.read<ChatProvider>();
+    final success = await chatProvider.sendRoomMessage(widget.room.id, text);
+
+    if (!mounted) return;
     if (success) {
       Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+    } else {
+      // Ripristina il testo e mostra il motivo (es. accesso non autorizzato).
+      _messageController.text = text;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(chatProvider.sendError ?? 'Messaggio non inviato.'),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
     }
   }
 

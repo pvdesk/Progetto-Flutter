@@ -57,9 +57,15 @@ class FerieService {
       );
     } catch (e) {
       if (e is DioException && e.response?.statusCode == 400) {
-        throw Exception('Codice OTP errato o scaduto.');
+        // Riporta il messaggio REALE del backend (es. "Immagine firma non valida",
+        // "Codice OTP scaduto…") invece di attribuire sempre l'errore all'OTP.
+        final d = e.response?.data;
+        final msg = (d is Map && (d['error'] ?? d['message']) != null)
+            ? (d['error'] ?? d['message']).toString()
+            : 'Firma non riuscita. Riprova.';
+        throw Exception(msg);
       }
-      throw Exception('Errore durante la verifica OTP: $e');
+      throw Exception('Errore durante la firma: $e');
     }
   }
 

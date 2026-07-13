@@ -21,7 +21,8 @@ class ChatProvider extends ChangeNotifier {
   String? _contactsError;
   String? _roomsError;
   String? _messagesError;
-  
+  String? _sendError;
+
   ContactModel? _activeContact;
   RoomModel? _activeRoom;
   Timer? _pollingTimer;
@@ -38,6 +39,7 @@ class ChatProvider extends ChangeNotifier {
   String? get contactsError => _contactsError;
   String? get roomsError => _roomsError;
   String? get messagesError => _messagesError;
+  String? get sendError => _sendError;
   ContactModel? get activeContact => _activeContact;
   RoomModel? get activeRoom => _activeRoom;
 
@@ -141,11 +143,24 @@ class ChatProvider extends ChangeNotifier {
       final response = await apiService.dio.get('api/chat/rooms/$roomId/messages');
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final list = data['messages'] as List<dynamic>;
-        _roomMessages = list.map((m) => GroupChatMessageModel.fromJson(m as Map<String, dynamic>)).toList();
+        final list = (data['messages'] as List<dynamic>? ?? const []);
+        // Parsing PER-MESSAGGIO: se uno è malformato lo saltiamo, senza
+        // svuotare l'intera chat (bug storico: un solo record faceva sparire tutto).
+        final parsed = <GroupChatMessageModel>[];
+        for (final m in list) {
+          try {
+            parsed.add(GroupChatMessageModel.fromJson(m as Map<String, dynamic>));
+          } catch (_) {/* messaggio malformato: ignorato */}
+        }
+        _roomMessages = parsed;
       } else {
         _messagesError = data['message'] as String?;
       }
+    } on DioException catch (e) {
+      final d = e.response?.data;
+      _messagesError = (d is Map && d['message'] != null)
+          ? d['message'].toString()
+          : 'Impossibile recuperare i messaggi del gruppo.';
     } catch (_) {
       _messagesError = 'Impossibile recuperare i messaggi del gruppo.';
     }
@@ -185,6 +200,7 @@ class ChatProvider extends ChangeNotifier {
   // Invia un messaggio ad una stanza
   Future<bool> sendRoomMessage(String roomId, String text) async {
     if (text.trim().isEmpty) return false;
+    _sendError = null;
 
     try {
       final response = await apiService.dio.post(
@@ -197,12 +213,24 @@ class ChatProvider extends ChangeNotifier {
 
       final data = response.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final newMsg = GroupChatMessageModel.fromJson(data['message'] as Map<String, dynamic>);
-        _roomMessages.add(newMsg);
+        try {
+          _roomMessages.add(GroupChatMessageModel.fromJson(data['message'] as Map<String, dynamic>));
+        } catch (_) {/* risposta malformata: il messaggio arriverà col prossimo polling */}
         notifyListeners();
         return true;
       }
-    } catch (_) {}
+      _sendError = data['message'] as String? ?? 'Invio non riuscito.';
+    } on DioException catch (e) {
+      // Espone il motivo (es. "Accesso alla stanza non autorizzato.") invece di
+      // fallire in silenzio lasciando la finestra vuota.
+      final d = e.response?.data;
+      _sendError = (d is Map && d['message'] != null)
+          ? d['message'].toString()
+          : 'Errore di rete durante l\'invio.';
+    } catch (_) {
+      _sendError = 'Errore imprevisto durante l\'invio del messaggio.';
+    }
+    notifyListeners();
     return false;
   }
 
