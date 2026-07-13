@@ -197,6 +197,20 @@ class ChatProvider extends ChangeNotifier {
     return false;
   }
 
+  // Carica i partecipanti di una stanza (chi vede/riceve i messaggi).
+  Future<List<Map<String, dynamic>>> fetchRoomParticipants(String roomId) async {
+    try {
+      final response = await apiService.dio.get('api/chat/rooms/$roomId/participants');
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        return (data['participants'] as List<dynamic>? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .toList();
+      }
+    } catch (_) {/* silenzioso: la UI mostra "nessun partecipante" */}
+    return const [];
+  }
+
   // Invia un messaggio ad una stanza
   Future<bool> sendRoomMessage(String roomId, String text) async {
     if (text.trim().isEmpty) return false;

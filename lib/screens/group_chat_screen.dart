@@ -77,6 +77,84 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     return DateFormat('HH:mm').format(localDate);
   }
 
+  // Mostra chi partecipa alla stanza (dipendenti assegnati + responsabili + admin).
+  void _mostraPartecipanti() {
+    final chatProvider = context.read<ChatProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return FutureBuilder<List<Map<String, dynamic>>>(
+          future: chatProvider.fetchRoomParticipants(widget.room.id),
+          builder: (ctx, snap) {
+            final loading = snap.connectionState == ConnectionState.waiting;
+            final people = snap.data ?? const [];
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.people_alt, color: Color(0xFF0075A2)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Partecipanti${people.isNotEmpty ? ' (${people.length})' : ''}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(color: Colors.white24, height: 1),
+                  if (loading)
+                    const Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())
+                  else if (people.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('Nessun partecipante trovato.', style: TextStyle(color: Colors.white70)),
+                    )
+                  else
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: people.length,
+                        itemBuilder: (ctx, i) {
+                          final p = people[i];
+                          final nome = (p['nome'] ?? 'Utente').toString();
+                          final ruolo = (p['ruolo'] ?? '').toString();
+                          return ListTile(
+                            dense: true,
+                            leading: CircleAvatar(
+                              backgroundColor: const Color(0xFF0075A2),
+                              radius: 16,
+                              child: Text(
+                                nome.isNotEmpty ? nome[0].toUpperCase() : '?',
+                                style: const TextStyle(color: Colors.white, fontSize: 13),
+                              ),
+                            ),
+                            title: Text(nome, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                            subtitle: ruolo.isNotEmpty
+                                ? Text(ruolo.replaceAll('_', ' '),
+                                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11))
+                                : null,
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
@@ -132,6 +210,13 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.people_alt_outlined, color: Colors.white),
+            tooltip: 'Partecipanti',
+            onPressed: _mostraPartecipanti,
+          ),
+        ],
       ),
       body: ResponsiveCenter(
         child: Column(

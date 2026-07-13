@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/ferie_service.dart';
 import '../widgets/responsive_card_grid.dart';
-import '../widgets/responsive_card_grid.dart';
 import 'richiesta_ferie_screen.dart';
 import 'haccp/signature_dialog.dart';
 
@@ -15,7 +14,7 @@ class FerieScreen extends StatefulWidget {
   State<FerieScreen> createState() => _FerieScreenState();
 }
 
-class _FerieScreenState extends State<FerieScreen> {
+class _FerieScreenState extends State<FerieScreen> with WidgetsBindingObserver {
   late FerieService _ferieService;
   List<dynamic> _richieste = [];
   bool _isLoading = true;
@@ -27,7 +26,23 @@ class _FerieScreenState extends State<FerieScreen> {
     super.initState();
     final apiService = Provider.of<ApiService>(context, listen: false);
     _ferieService = FerieService(apiService);
+    // Ricarica quando l'app torna in primo piano: così le richieste eliminate dal
+    // gestionale spariscono anche qui senza dover riavviare l'app.
+    WidgetsBinding.instance.addObserver(this);
     _loadStorico();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      _loadStorico();
+    }
   }
 
   Future<void> _loadStorico() async {
