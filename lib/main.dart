@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -22,6 +23,7 @@ import 'services/ddt_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/privacy_screen.dart';
 import 'screens/main_shell_screen.dart';
+import 'screens/haccp/haccp_list_screen.dart';
 import 'widgets/update_checker_wrapper.dart';
 import 'services/remote_logger.dart';
 
@@ -53,6 +55,20 @@ final bool isMobilePlatform = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Android 15/16 (SDK 35+) impone l'edge-to-edge: l'app disegna sotto le barre di
+  // sistema. Abilitiamo la modalità e rendiamo trasparenti le barre così i SafeArea
+  // applicano correttamente gli inset (input chat, pulsanti in basso, ecc. non finiscono
+  // più dietro ai controlli Android).
+  if (isMobilePlatform) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+    ));
+  }
 
   // Inizializza Firebase (solo mobile)
   if (isMobilePlatform) {
@@ -243,6 +259,11 @@ class _MyAppState extends State<MyApp> {
       navigatorKey.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainShellScreen(initialTab: 4)),
         (route) => false,
+      );
+    } else if (type == 'haccp') {
+      // Nomina/verifiche HACCP → apre direttamente le firme in sospeso del preposto.
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const HaccpListScreen()),
       );
     }
   }

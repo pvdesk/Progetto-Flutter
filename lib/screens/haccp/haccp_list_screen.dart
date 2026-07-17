@@ -68,6 +68,26 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
     }
   }
 
+  /// Etichetta leggibile della frequenza (periodicità della scheda/piano).
+  String _labelFrequenza(String p) {
+    switch (p) {
+      case 'giornaliera':
+        return 'Giornaliera';
+      case 'due_al_giorno':
+        return '2 volte/giorno';
+      case 'tre_al_giorno':
+        return '3 volte/giorno';
+      case 'settimanale':
+        return 'Settimanale';
+      case 'mensile':
+        return 'Mensile';
+      case 'ad_evento':
+        return 'Ad evento';
+      default:
+        return p;
+    }
+  }
+
   Future<void> _procediFirma() async {
     if (_selezionati.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +99,7 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const SignatureDialog(),
+      builder: (_) => SignatureDialog(onRichiediOtp: _haccpService.richiediOtp),
     );
 
     if (result != null) {
@@ -97,10 +117,13 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
         };
       }).toList();
 
+      final modalita = (result['modalita'] as String?) ?? 'olografa';
       final response = await _haccpService.salvaFirma(
         selezioneParam,
-        result['firma'],
-        result['device'] ?? 'Sconosciuto',
+        modalita: modalita,
+        base64Signature: result['firma'] as String?,
+        otp: result['otp'] as String?,
+        deviceInfo: (result['device'] as String?) ?? 'Sconosciuto',
       );
 
       if (!mounted) return;
@@ -218,6 +241,7 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
     final ambito = blocco['ambito'] as String;
     final scopeId = blocco['scope_id'] as int;
     final giorni = blocco['giorni'] as List<dynamic>? ?? [];
+    final perFrequenza = blocco['per_frequenza'] as List<dynamic>? ?? [];
     final selezionatiQui = giorni.where((g) => _selezionati.contains('$ambito|$scopeId|$g')).length;
 
     return Card(
@@ -237,6 +261,28 @@ class _HaccpListScreenState extends State<HaccpListScreen> {
               : '${giorni.length} documenti da firmare',
         ),
         children: [
+          if (perFrequenza.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: perFrequenza.map((f) {
+                    final periodicita = (f['periodicita'] ?? 'giornaliera').toString();
+                    final righe = f['righe'] ?? 0;
+                    return Chip(
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: const Color(0xFFf15a24).withValues(alpha: 0.10),
+                      side: BorderSide(color: const Color(0xFFf15a24).withValues(alpha: 0.3)),
+                      label: Text('${_labelFrequenza(periodicita)} · $righe',
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFFc44e00))),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
             child: Align(
